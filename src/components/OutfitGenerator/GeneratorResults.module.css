@@ -1,0 +1,99 @@
+.container {
+  background: var(--color-white);
+  border-radius: var(--radius-none);
+  padding: var(--spacing-8);
+  box-shadow: var(--shadow-lg);
+  animation: slideUp var(--transition-slow);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  margin-bottom: var(--spacing-8);
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.imagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-6);
+  margin-bottom: var(--spacing-8);
+}
+
+.imageCard {
+  text-align: center;
+}
+
+.imageCard h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-gray-700);
+}
+
+.image {
+  width: 100%;
+  max-height: 600px;
+  object-fit: contain;
+  border-radius: var(--radius-none);
+  box-shadow: var(--shadow-md);
+}
+
+.descriptionSection {
+  background: var(--color-off-white);
+  padding: var(--spacing-6);
+  border-radius: var(--radius-none);
+  margin-bottom: var(--spacing-6);
+}
+
+.descriptionSection h4 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-4);
+  color: var(--color-black);
+}
+
+.descriptionSection p {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  white-space: pre-wrap;
+}
+
+.occasionBadge {
+  text-align: center;
+  padding: var(--spacing-4);
+  background: var(--gradient-gold);
+  border-radius: var(--radius-none);
+  margin-bottom: var(--spacing-6);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.badgeLabel {
+  font-weight: var(--font-weight-bold);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-4);
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-6);
+  }
+
+  .imagesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,49 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.cameraView {
+  width: 100%;
+  min-height: 400px;
+  background: var(--color-black);
+  border-radius: var(--radius-none);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video,
+.preview {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.canvas {
+  display: none;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.buttonGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+}
+
+@media (max-width: 768px) {
+  .cameraView {
+    min-height: 300px;
+  }
+
+  .buttonGroup {
+    grid-template-columns: 1fr;
+  }
+}
