@@ -1,0 +1,953 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lumora - AI Fashion Assistant</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+
+        <header>
+
+            <img src="Logo.jpeg" alt="Lumora" class="logo">
+
+            <p class="tagline">Your personal AI fashion stylist</p>
+
+        </header>
+
+
+
+        <!-- Mode Selection -->
+
+        <div class="mode-selector">
+
+            <button class="mode-btn active" data-mode="rater">
+
+                <span class="icon">⭐</span>
+
+                Outfit Rater
+
+            </button>
+
+            <button class="mode-btn" data-mode="generator">
+
+                <span class="icon">🎨</span>
+
+                Outfit Generator
+
+            </button>
+
+            <button class="mode-btn" data-mode="arena">
+
+                <span class="icon">🏆</span>
+
+                Fashion Arena
+
+            </button>
+
+        </div>
+
+
+
+        <!-- Outfit Rater Mode -->
+
+        <div id="rater-mode" class="mode-content active">
+
+            <h2>Rate Your Outfit</h2>
+
+            <p class="mode-description">Upload your outfit photo and get AI-powered feedback</p>
+
+            
+
+            <form id="rater-form">
+
+                <!-- Photo Upload -->
+
+                <div class="form-group">
+
+                    <label>Upload Outfit Photo *</label>
+
+                    <div class="upload-area" id="rater-upload">
+
+                        <input type="file" id="rater-file-input" accept="image/*" hidden>
+
+                        <div class="upload-prompt">
+
+                            <span class="upload-icon">📸</span>
+
+                            <p>Click to upload or drag & drop</p>
+
+                            <p class="upload-hint">JPG, PNG, HEIC (Max 10MB)</p>
+
+                        </div>
+
+                        <img id="rater-preview" class="image-preview" style="display: none;">
+
+                    </div>
+
+                    <div class="camera-buttons">
+
+                        <button type="button" class="btn-camera" onclick="openCamera('rater')">
+
+                            <span class="btn-icon">📷</span>
+
+                            Take Photo
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Occasion -->
+
+                <div class="form-group">
+
+                    <label for="rater-occasion">Occasion *</label>
+
+                    <select id="rater-occasion" required>
+
+                        <option value="Garden Party" selected>Garden Party</option>
+
+                        <option value="Casual Outing">Casual Outing</option>
+
+                        <option value="Date Night">Date Night</option>
+
+                        <option value="Professional/Formal">Professional/Formal</option>
+
+                        <option value="Wedding Guest">Wedding (Guest)</option>
+
+                        <option value="Beach/Resort">Beach/Resort</option>
+
+                        <option value="Gym/Athletic">Gym/Athletic</option>
+
+                        <option value="Halloween">Halloween</option>
+
+                        <option value="custom">Custom (type below)</option>
+
+                    </select>
+
+                    <input type="text" id="rater-custom-occasion" class="custom-input" 
+
+                           placeholder="Enter custom occasion" maxlength="100" style="display: none;">
+
+                </div>
+
+
+
+                <!-- Budget -->
+
+                <div class="form-group">
+
+                    <label for="rater-budget">Budget (Optional)</label>
+
+                    <div class="budget-input">
+
+                        <select id="rater-currency">
+
+                            <option value="SGD">SGD</option>
+
+                            <option value="USD">USD</option>
+
+                            <option value="EUR">EUR</option>
+
+                            <option value="GBP">GBP</option>
+
+                        </select>
+
+                        <input type="text" id="rater-budget" placeholder="e.g., $100-200">
+
+                    </div>
+
+                </div>
+
+
+
+                <button type="submit" class="btn-primary" id="rater-submit">
+
+                    <span class="btn-icon">✨</span>
+
+                    Rate My Outfit
+
+                </button>
+
+            </form>
+
+
+
+            <!-- Results -->
+
+            <div id="rater-results" class="results-section" style="display: none;">
+
+                <h3>Your Outfit Analysis</h3>
+
+                
+
+                <!-- User's Photo -->
+
+                <div class="user-photo-display">
+
+                    <img id="rater-result-photo" class="user-result-photo" alt="Your Outfit">
+
+                </div>
+
+                
+
+                <div class="scores-grid">
+
+                    <div class="score-card">
+
+                        <div class="score-label">Wow Factor</div>
+
+                        <div class="score-value" id="wow-score">-</div>
+
+                        <div class="score-explanation" id="wow-explanation"></div>
+
+                    </div>
+
+                    <div class="score-card">
+
+                        <div class="score-label">Occasion Fitness</div>
+
+                        <div class="score-value" id="fitness-score">-</div>
+
+                        <div class="score-explanation" id="fitness-explanation"></div>
+
+                    </div>
+
+                    <div class="score-card">
+
+                        <div class="score-label">Overall Rating</div>
+
+                        <div class="score-value" id="overall-score">-</div>
+
+                        <div class="score-explanation" id="overall-explanation"></div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="feedback-section">
+
+                    <div class="feedback-box">
+
+                        <h4>✅ Strengths</h4>
+
+                        <ul id="strengths-list"></ul>
+
+                    </div>
+
+                    <div class="feedback-box">
+
+                        <h4>💡 Areas for Improvement</h4>
+
+                        <ul id="improvements-list"></ul>
+
+                    </div>
+
+                    <div class="feedback-box">
+
+                        <h4>🎯 Suggestions</h4>
+
+                        <ul id="suggestions-list"></ul>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Roast Section -->
+
+                <div id="roast-section" class="roast-section" style="display: none;">
+
+                    <button id="roast-reveal-btn" class="btn-roast-reveal" onclick="revealRoast()">
+
+                        <span class="roast-icon">🔥</span>
+
+                        Ready for the Roast?
+
+                        <span class="roast-icon">🔥</span>
+
+                    </button>
+
+                    <div id="roast-content" class="roast-content" style="display: none;">
+
+                        <h4>🔥 Fashion Roast 🔥</h4>
+
+                        <p id="roast-text"></p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="shopping-section">
+
+                    <h4>🛍️ Shopping Recommendations</h4>
+
+                    <div id="shopping-grid" class="shopping-grid"></div>
+
+                </div>
+
+
+
+                <div class="action-buttons" style="margin: 30px 0;">
+
+                    <button class="btn-primary" onclick="generateFromRaterRecommendations()">
+
+                        <span class="btn-icon">✨</span>
+
+                        Generate Improved Outfit
+
+                    </button>
+
+                    <p style="text-align: center; color: #666; margin-top: 10px; font-size: 14px;">
+
+                        Create a new outfit based on these AI recommendations
+
+                    </p>
+
+                </div>
+
+
+
+                <div id="rater-arena-section" class="arena-action-section" style="display: none;">
+
+                    <h4>🏆 Share with Community</h4>
+
+                    <p>Love your outfit? Share it with the Fashion Arena community!</p>
+
+                    <button id="rater-arena-btn" class="btn-primary">
+
+                        <span class="btn-icon">🏆</span>
+
+                        Submit to Fashion Arena
+
+                    </button>
+
+                </div>
+
+
+
+                <button class="btn-secondary" onclick="resetRater()">Rate Another Outfit</button>
+
+            </div>
+
+
+
+            <div id="rater-loading" class="loading" style="display: none;">
+
+                <div class="spinner"></div>
+
+                <p>Analyzing your outfit...</p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Outfit Generator Mode -->
+
+        <div id="generator-mode" class="mode-content">
+
+            <h2>Generate Outfit Ideas</h2>
+
+            <p class="mode-description">Get personalized outfit suggestions with AI</p>
+
+            
+
+            <form id="generator-form">
+
+                <!-- Photo Upload (Required) -->
+
+                <div class="form-group">
+
+                    <label>Your Photo *</label>
+
+                    <div class="upload-area" id="generator-upload">
+
+                        <input type="file" id="generator-file-input" accept="image/*" hidden required>
+
+                        <div class="upload-prompt">
+
+                            <span class="upload-icon">📸</span>
+
+                            <p>Click to upload or drag & drop</p>
+
+                            <p class="upload-hint">JPG, PNG, HEIC (Max 10MB)</p>
+
+                        </div>
+
+                        <img id="generator-preview" class="image-preview" style="display: none;">
+
+                    </div>
+
+                    <div class="camera-buttons">
+
+                        <button type="button" class="btn-camera" onclick="openCamera('generator')">
+
+                            <span class="btn-icon">📷</span>
+
+                            Take Photo
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Wow Factor Slider -->
+
+                <div class="form-group">
+
+                    <label for="wow-slider">
+
+                        Wow Factor: <span id="wow-value">5</span>/10
+
+                        (<span id="wow-label">Balanced & Stylish</span>)
+
+                    </label>
+
+                    <input type="range" id="wow-slider" min="1" max="10" value="5" class="slider">
+
+                    <div class="slider-labels">
+
+                        <span>Classic & Safe</span>
+
+                        <span>Bold & Creative</span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Occasion -->
+
+                <div class="form-group">
+
+                    <label for="generator-occasion">Occasion *</label>
+
+                    <select id="generator-occasion" required>
+
+                        <option value="Garden Party" selected>Garden Party</option>
+
+                        <option value="Casual Outing">Casual Outing</option>
+
+                        <option value="Date Night">Date Night</option>
+
+                        <option value="Professional/Formal">Professional/Formal</option>
+
+                        <option value="Wedding Guest">Wedding (Guest)</option>
+
+                        <option value="Beach/Resort">Beach/Resort</option>
+
+                        <option value="Gym/Athletic">Gym/Athletic</option>
+
+                        <option value="Halloween">Halloween</option>
+
+                        <option value="custom">Custom (type below)</option>
+
+                    </select>
+
+                    <input type="text" id="generator-custom-occasion" class="custom-input"
+
+                           placeholder="Enter custom occasion" maxlength="100" style="display: none;">
+
+                </div>
+
+
+
+                <!-- Budget -->
+
+                <div class="form-group">
+
+                    <label for="generator-budget">Budget (Optional)</label>
+
+                    <div class="budget-input">
+
+                        <select id="generator-currency">
+
+                            <option value="SGD">SGD</option>
+
+                            <option value="USD">USD</option>
+
+                            <option value="EUR">EUR</option>
+
+                            <option value="GBP">GBP</option>
+
+                        </select>
+
+                        <input type="text" id="generator-budget" placeholder="e.g., $200-500">
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Conditions -->
+
+                <div class="form-group">
+
+                    <label for="conditions">Special Conditions (Optional)</label>
+
+                    <textarea id="conditions" placeholder="e.g., must wear red, no dresses, include hat"
+
+                              maxlength="200" rows="2"></textarea>
+
+                    <p class="input-hint">Comma-separated, max 200 characters</p>
+
+                </div>
+
+
+
+                <!-- Brands -->
+
+                <div class="form-group">
+
+                    <label for="brands">Go-to Brands (Optional)</label>
+
+                    <input type="text" id="brands" placeholder="e.g., Zara, H&M, Nike (comma-separated)" maxlength="200">
+
+                    <p class="input-hint">Maximum 5 brands</p>
+
+                </div>
+
+
+
+                <button type="submit" class="btn-primary" id="generator-submit">
+
+                    <span class="btn-icon">🎨</span>
+
+                    Generate Outfit
+
+                </button>
+
+            </form>
+
+
+
+            <!-- Results -->
+
+            <div id="generator-results" class="results-section" style="display: none;">
+
+                <h3>Your Generated Outfit</h3>
+
+                
+
+                <div class="outfit-display">
+
+                    <img id="generated-image" class="generated-outfit-image" alt="Generated Outfit">
+
+                </div>
+
+
+
+                <div class="outfit-details">
+
+                    <h4>📝 Outfit Description</h4>
+
+                    <div id="outfit-concept" class="outfit-concept"></div>
+
+                    
+
+                    <h4>👕 Outfit Items</h4>
+
+                    <div id="outfit-items" class="outfit-items"></div>
+
+                    
+
+                    <h4>🎨 Color Palette</h4>
+
+                    <p id="color-palette"></p>
+
+                    
+
+                    <h4>✨ Why This Works</h4>
+
+                    <p id="occasion-notes"></p>
+
+                </div>
+
+
+
+                <div class="shopping-section">
+
+                    <h4>🛍️ Shop This Look</h4>
+
+                    <div id="generator-shopping-grid" class="shopping-grid"></div>
+
+                    <p class="total-cost">Estimated Total: <span id="total-cost">-</span></p>
+
+                </div>
+
+
+
+                <div class="action-buttons">
+
+                    <button class="btn-secondary" onclick="regenerateOutfit()">
+
+                        <span class="btn-icon">🔄</span>
+
+                        Generate Another
+
+                    </button>
+
+                    <button class="btn-secondary" onclick="resetGenerator()">Start Over</button>
+
+                </div>
+
+            </div>
+
+
+
+            <div id="generator-loading" class="loading" style="display: none;">
+
+                <div class="spinner"></div>
+
+                <p>Creating your perfect outfit...</p>
+
+                <p class="loading-hint">This may take up to 30 seconds</p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Fashion Arena Mode -->
+
+        <div id="arena-mode" class="mode-content">
+
+            <h2>🏆 Fashion Arena</h2>
+
+            <p class="mode-description">Share your looks and vote on community styles</p>
+
+            
+
+            <!-- Arena Tabs -->
+
+            <div class="arena-tabs">
+
+                <button class="arena-tab active" data-tab="browse">Browse & Vote</button>
+
+                <button class="arena-tab" data-tab="leaderboard">🏆 Leaderboard</button>
+
+            </div>
+
+
+
+            <!-- Browse & Vote Section -->
+
+            <div id="arena-browse" class="arena-section active">
+
+                <!-- Like Instruction - Visible on all devices -->
+
+                <p class="arena-like-instruction">💕 Double-tap any photo to like it!</p>
+
+                
+
+                <!-- Sort Options -->
+
+                <div class="sort-options">
+
+                    <label>Sort by:</label>
+
+                    <select id="arena-sort" onchange="loadArenaSubmissions()">
+
+                        <option value="recent">Most Recent</option>
+
+                        <option value="top_voted">Most Liked</option>
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- Submissions Grid -->
+
+                <div id="arena-submissions-grid" class="arena-grid">
+
+                    <div class="loading-message">Loading submissions...</div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Leaderboard Section -->
+
+            <div id="arena-leaderboard" class="arena-section">
+
+                <h3>🏆 Top 10 Fashion Leaders</h3>
+
+                <div id="leaderboard-list" class="leaderboard-list">
+
+                    <div class="loading-message">Loading leaderboard...</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Arena Submission Modal -->
+
+    <div id="arena-modal" class="modal" style="display: none;">
+
+        <div class="modal-content">
+
+            <span class="modal-close" onclick="closeArenaModal()">&times;</span>
+
+            <h3>Submit to Fashion Arena</h3>
+
+            
+
+            <form id="arena-submit-form">
+
+                <div class="modal-preview">
+
+                    <img id="arena-modal-preview" alt="Preview">
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="arena-title">Title *</label>
+
+                    <input type="text" id="arena-title" placeholder="Give your outfit a catchy name" maxlength="100" required>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="arena-description">Description</label>
+
+                    <textarea id="arena-description" placeholder="Tell us about your style..." maxlength="300" rows="3"></textarea>
+
+                </div>
+
+
+
+                <input type="hidden" id="arena-photo-data">
+
+                <input type="hidden" id="arena-occasion-data">
+
+                <input type="hidden" id="arena-source-mode">
+
+
+
+                <div class="modal-actions">
+
+                    <button type="button" class="btn-secondary" onclick="closeArenaModal()">Cancel</button>
+
+                    <button type="submit" class="btn-primary">
+
+                        <span class="btn-icon">🚀</span>
+
+                        Submit to Arena
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Voting Modal -->
+
+    <div id="vote-modal" class="modal" style="display: none;">
+
+        <div class="modal-content">
+
+            <span class="modal-close" onclick="closeVoteModal()">&times;</span>
+
+            <h3>Rate This Look</h3>
+
+            
+
+            <div class="modal-preview">
+
+                <img id="vote-modal-preview" alt="Submission">
+
+            </div>
+
+
+
+            <div class="vote-details">
+
+                <h4 id="vote-modal-title"></h4>
+
+                <p id="vote-modal-description"></p>
+
+                <div class="vote-modal-stats">
+
+                    <span class="vote-stat">👍 <span id="vote-modal-votes">0</span> votes</span>
+
+                    <span class="vote-stat">⭐ <span id="vote-modal-rating">0</span>/10</span>
+
+                    <span class="vote-stat">🗳️ <span id="vote-modal-count">0</span> ratings</span>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="form-group">
+
+                <label for="vote-rating">Your Rating (1-10) *</label>
+
+                <input type="range" id="vote-rating" min="1" max="10" value="5" class="slider">
+
+                <div class="rating-display">
+
+                    <span id="vote-rating-value">5</span>/10
+
+                </div>
+
+            </div>
+
+
+
+            <input type="hidden" id="vote-submission-id">
+
+
+
+            <div class="modal-actions">
+
+                <button class="btn-secondary" onclick="submitVote('downvote')">
+
+                    👎 Not My Style
+
+                </button>
+
+                <button class="btn-primary" onclick="submitVote('upvote')">
+
+                    👍 Love It!
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Camera Modal -->
+
+    <div id="camera-modal" class="modal" style="display: none;">
+
+        <div class="modal-content">
+
+            <span class="modal-close" onclick="closeCamera()">&times;</span>
+
+            <h3>📷 Take a Photo</h3>
+
+            
+
+            <div class="camera-container">
+
+                <video id="camera-video" autoplay playsinline></video>
+
+                <canvas id="camera-canvas" style="display: none;"></canvas>
+
+                <img id="camera-preview" style="display: none;">
+
+            </div>
+
+
+
+            <div class="camera-controls">
+
+                <button type="button" class="btn-camera" id="capture-btn" onclick="capturePhoto()">
+
+                    <span class="btn-icon">📸</span>
+
+                    Capture
+
+                </button>
+
+                <button type="button" class="btn-camera" id="retake-btn" onclick="retakePhoto()" style="display: none;">
+
+                    <span class="btn-icon">🔄</span>
+
+                    Retake
+
+                </button>
+
+                <button type="button" class="btn-primary" id="use-photo-btn" onclick="usePhoto()" style="display: none;">
+
+                    <span class="btn-icon">✓</span>
+
+                    Use This Photo
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <footer>
+        <p>Developed by Craig Acquaye, Iris Keum, Kyn Sze, Sailesh Sharma, Saurabh Mehta, Simon Armstrong, Taj-Mahal Y Aquino</p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">Lumora | Powered by OpenAI GPT-4o & NanobananaAPI</p>
+    </footer>
+
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
+
