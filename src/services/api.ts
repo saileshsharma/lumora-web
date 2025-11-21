@@ -129,7 +129,7 @@ export const generatorApi = {
     const response = await fetchWithErrorHandling<{ data: string }>('/generate-outfit', {
       method: 'POST',
       body: JSON.stringify({
-        image: imageData,
+        user_image: imageData,  // Backend expects 'user_image' not 'image'
         occasion,
         budget,
       }),
@@ -150,7 +150,7 @@ export const generatorApi = {
     const response = await fetchWithErrorHandling<{ data: string }>('/generate-outfit', {
       method: 'POST',
       body: JSON.stringify({
-        image: originalImage,
+        user_image: originalImage,  // Backend expects 'user_image' not 'image'
         occasion,
         budget: 'Based on AI recommendations',
         improvement_mode: true,
