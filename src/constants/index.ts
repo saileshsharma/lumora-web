@@ -5,11 +5,11 @@
 
 // API Configuration
 // In development, use local backend
-// In production, use Railway backend
+// In production, use relative URL (proxy will handle it)
 export const API_BASE_URL =
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5001/api'  // Local development backend
-    : 'https://web-production-53490.up.railway.app/api';
+    : '/api';  // Production: proxy to backend via _redirects or Railway middleware
 
 // App Modes
 export const APP_MODES = {
