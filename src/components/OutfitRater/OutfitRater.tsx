@@ -3,9 +3,10 @@ import { Button, ImageUpload, OccasionSelect, Loading, CameraModal } from '../co
 import { RaterResults } from './RaterResults';
 import { useRaterStore } from '../../store/raterStore';
 import { useAppStore } from '../../store/appStore';
+import { useGeneratorStore } from '../../store/generatorStore';
 import { raterApi } from '../../services/api';
 import { showError, updateToSuccess } from '../../utils/toast';
-import { ERROR_MESSAGES, BUDGET_RANGES } from '../../constants';
+import { ERROR_MESSAGES, BUDGET_RANGES, APP_MODES } from '../../constants';
 import styles from './OutfitRater.module.css';
 
 export const OutfitRater: React.FC = () => {
@@ -23,7 +24,12 @@ export const OutfitRater: React.FC = () => {
     reset,
   } = useRaterStore();
 
-  const { setSharedImage } = useAppStore();
+  const { setSharedImage, setMode } = useAppStore();
+  const {
+    setImageData: setGeneratorImage,
+    setOccasion: setGeneratorOccasion,
+    reset: resetGenerator,
+  } = useGeneratorStore();
 
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [customOccasion, setCustomOccasion] = useState('');
@@ -64,6 +70,31 @@ export const OutfitRater: React.FC = () => {
     reset();
     setCustomOccasion('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleGenerateImproved = () => {
+    // Reset generator first to clear any old results
+    resetGenerator();
+
+    // Then transfer image and occasion to Generator
+    if (imageData) {
+      setGeneratorImage(imageData);
+      setSharedImage(imageData);
+    }
+    if (occasion) {
+      setGeneratorOccasion(occasion);
+    }
+
+    // Navigate to Generator mode
+    setMode(APP_MODES.GENERATOR);
+
+    // Scroll to top smoothly
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+
+    // Show success message
+    updateToSuccess('', '✨ Ready to generate improved outfit!');
   };
 
   return (
@@ -126,6 +157,7 @@ export const OutfitRater: React.FC = () => {
             originalImage={imageData}
             occasion={occasion}
             onReset={handleReset}
+            onGenerateImproved={handleGenerateImproved}
           />
         </div>
       )}
