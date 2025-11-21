@@ -4,12 +4,23 @@
  */
 
 // API Configuration
-// In development, use local backend
-// In production, use relative URL (proxy will handle it)
-export const API_BASE_URL =
-  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5001/api'  // Local development backend
-    : '/api';  // Production: proxy to backend via _redirects or Railway middleware
+// Use environment variable if set, otherwise use defaults
+const getApiBaseUrl = () => {
+  // Check for environment variable (Vite exposes env vars with VITE_ prefix)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // Development
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:5001/api';
+  }
+
+  // Production - direct backend URL
+  return 'https://web-production-53490.up.railway.app/api';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 // App Modes
 export const APP_MODES = {

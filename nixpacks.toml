@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20"]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run build", "cp serve.json dist/serve.json"]
+cmds = ["npm run build"]
 
 [start]
-cmd = "npx serve dist -s -p $PORT --config serve.json"
+cmd = "npx serve dist -s -p $PORT"
