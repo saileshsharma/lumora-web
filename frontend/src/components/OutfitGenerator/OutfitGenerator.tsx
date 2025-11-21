@@ -92,9 +92,13 @@ export const OutfitGenerator: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Generate New Outfit</h2>
+        <h2 className={styles.title}>
+          {sharedImage && imageData ? '✨ Generate Improved Outfit' : 'Generate New Outfit'}
+        </h2>
         <p className={styles.description}>
-          Upload your photo and let AI create the perfect outfit suggestion for any occasion
+          {sharedImage && imageData
+            ? 'Your image and occasion have been loaded. Adjust settings and generate an improved outfit!'
+            : 'Upload your photo and let AI create the perfect outfit suggestion for any occasion'}
         </p>
       </div>
 

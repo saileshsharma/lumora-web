@@ -35,13 +35,20 @@ async function fetchWithErrorHandling<T>(
   options?: RequestInit
 ): Promise<T> {
   try {
+    console.log('API Request:', `${API_BASE_URL}${endpoint}`);
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      mode: 'cors',
+      credentials: 'omit',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         ...options?.headers,
       },
       ...options,
     });
+
+    console.log('API Response status:', response.status);
 
     // Handle non-OK responses
     if (!response.ok) {
@@ -62,8 +69,11 @@ async function fetchWithErrorHandling<T>(
     const data = await response.json();
     return data as T;
   } catch (error) {
+    console.error('API Error:', error);
+
     // Network errors
     if (error instanceof TypeError) {
+      console.error('Network error - backend might be down or CORS issue');
       throw new ApiException(ERROR_MESSAGES.BACKEND_DOWN);
     }
 
@@ -73,6 +83,7 @@ async function fetchWithErrorHandling<T>(
     }
 
     // Unknown errors
+    console.error('Unknown error:', error);
     throw new ApiException(ERROR_MESSAGES.SERVER_ERROR);
   }
 }
@@ -118,7 +129,7 @@ export const generatorApi = {
     const response = await fetchWithErrorHandling<{ data: string }>('/generate-outfit', {
       method: 'POST',
       body: JSON.stringify({
-        image: imageData,
+        user_image: imageData,  // Backend expects 'user_image' not 'image'
         occasion,
         budget,
       }),
@@ -139,7 +150,7 @@ export const generatorApi = {
     const response = await fetchWithErrorHandling<{ data: string }>('/generate-outfit', {
       method: 'POST',
       body: JSON.stringify({
-        image: originalImage,
+        user_image: originalImage,  // Backend expects 'user_image' not 'image'
         occasion,
         budget: 'Based on AI recommendations',
         improvement_mode: true,

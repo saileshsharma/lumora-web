@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Environment variables - NEVER commit these!
+.env
+.env.*
+.env.local
+.env.development
+.env.dev
+.env.production
+.env.prod
+.env.test
+.env.staging
+
+# Logs
+logs/
+*.log
+backend.log
+nohup.out
+
+# Database
+*.db
+*.sqlite
+fashion_arena_db.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution
+dist/
+build/
+*.egg-info/

@@ -47,16 +47,14 @@ CORS(app, resources={
             "http://127.0.0.1:5173",
             "http://127.0.0.1:3000",
             "http://127.0.0.1:5001",
-            "https://*.railway.app",  # Railway deployments
+            "https://lumora-web-production.up.railway.app",  # Production frontend
+            "https://web-production-c70ba.up.railway.app",  # New backend URL
         ],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True
     }
 })
-
-# Also allow CORS for serving frontend
-CORS(app, origins="*")
 
 logger.info("="*60)
 logger.info("OUTFIT ASSISTANT APPLICATION STARTED")
@@ -511,8 +509,14 @@ Format as JSON:
         outfit_description = description_response.choices[0].message.content
         logger.info("GPT-4 Response received")
         logger.info(f"Outfit Description: {outfit_description[:500]}...")
-        
-        outfit_data = eval(outfit_description)  # Parse for outfit details
+
+        # Parse JSON response safely
+        try:
+            outfit_data = json.loads(outfit_description)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse GPT-4 JSON response: {e}")
+            logger.error(f"Response content: {outfit_description}")
+            raise ValueError(f"Invalid JSON response from GPT-4: {str(e)}")
         
         # Build detailed outfit description for image generation
         outfit_details = " ".join([f"{item['description']} in {item['color']}" for item in outfit_data.get('items', [])])
@@ -559,11 +563,17 @@ Format as JSON:
         
         if not image_url:
             raise Exception("NanobananaAPI generation returned None. Check logs above for specific error.")
-        
-        return jsonify({
+
+        # Format response to match frontend expectations
+        result_data = json.dumps({
             "success": True,
             "outfit_description": outfit_description,
             "outfit_image_url": image_url
+        })
+
+        return jsonify({
+            "success": True,
+            "data": result_data
         })
         
     except Exception as e:
