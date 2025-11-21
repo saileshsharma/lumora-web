@@ -49,7 +49,13 @@ def generate_outfit():
         logger.info("GENERATE OUTFIT REQUEST RECEIVED")
         logger.info("="*60)
 
+        # Log raw request data
+        logger.debug(f"Request method: {request.method}")
+        logger.debug(f"Request headers: {dict(request.headers)}")
+        logger.debug(f"Request content-type: {request.content_type}")
+
         data = request.json
+        logger.debug(f"Request data keys: {list(data.keys()) if data else 'None'}")
 
         # Extract parameters
         user_image = data.get('user_image', None)

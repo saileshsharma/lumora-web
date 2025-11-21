@@ -81,15 +81,20 @@ def setup_logging(config):
         f"outfit_assistant_{datetime.now().strftime('%Y%m%d')}.log"
     )
 
-    # Configure logging format
+    # Configure logging format with more details
     logging.basicConfig(
-        level=getattr(logging, config.LOG_LEVEL),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.DEBUG,  # Set to DEBUG for full logging
+        format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
         handlers=[
             logging.FileHandler(log_filename),
             logging.StreamHandler()  # Also output to console
-        ]
+        ],
+        force=True  # Force reconfiguration
     )
+
+    # Set werkzeug to INFO to avoid too many logs
+    logging.getLogger('werkzeug').setLevel(logging.INFO)
 
     logger = logging.getLogger(__name__)
     logger.info(f"Logging configured: {log_filename}")
+    logger.info(f"Log level: DEBUG (full logging enabled)")
