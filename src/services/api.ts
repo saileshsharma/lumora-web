@@ -36,8 +36,11 @@ async function fetchWithErrorHandling<T>(
 ): Promise<T> {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      mode: 'cors',
+      credentials: 'omit',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         ...options?.headers,
       },
       ...options,
