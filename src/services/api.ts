@@ -35,6 +35,8 @@ async function fetchWithErrorHandling<T>(
   options?: RequestInit
 ): Promise<T> {
   try {
+    console.log('API Request:', `${API_BASE_URL}${endpoint}`);
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       mode: 'cors',
       credentials: 'omit',
@@ -45,6 +47,8 @@ async function fetchWithErrorHandling<T>(
       },
       ...options,
     });
+
+    console.log('API Response status:', response.status);
 
     // Handle non-OK responses
     if (!response.ok) {
@@ -65,8 +69,11 @@ async function fetchWithErrorHandling<T>(
     const data = await response.json();
     return data as T;
   } catch (error) {
+    console.error('API Error:', error);
+
     // Network errors
     if (error instanceof TypeError) {
+      console.error('Network error - backend might be down or CORS issue');
       throw new ApiException(ERROR_MESSAGES.BACKEND_DOWN);
     }
 
@@ -76,6 +83,7 @@ async function fetchWithErrorHandling<T>(
     }
 
     // Unknown errors
+    console.error('Unknown error:', error);
     throw new ApiException(ERROR_MESSAGES.SERVER_ERROR);
   }
 }
