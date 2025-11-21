@@ -16,10 +16,8 @@ const getApiBaseUrl = () => {
     return 'http://localhost:5001/api';
   }
 
-  // Production - use CORS proxy to bypass CORS restrictions
-  // NOTE: This is a temporary workaround. For production, configure CORS on backend.
-  const backendUrl = 'https://web-production-53490.up.railway.app/api';
-  return `https://corsproxy.io/?${encodeURIComponent(backendUrl)}`;
+  // Production - direct connection to your Railway backend (CORS properly configured)
+  return 'https://web-production-c70ba.up.railway.app/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
