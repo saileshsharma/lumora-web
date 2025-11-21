@@ -4,12 +4,12 @@
  */
 
 // API Configuration
-// In development, use relative URL to leverage Vite proxy
-// In production, use full Railway URL
+// In development, use local backend
+// In production, use Railway backend
 export const API_BASE_URL =
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? '/api'  // Proxied by Vite to http://localhost:5000/api
-    : 'https://ai-outfit-assistant-production.up.railway.app/api';
+    ? 'http://localhost:5001/api'  // Local development backend
+    : 'https://web-production-53490.up.railway.app/api';
 
 // App Modes
 export const APP_MODES = {
