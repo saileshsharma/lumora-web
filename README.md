@@ -271,6 +271,55 @@ For issues or questions:
 2. Review OpenAI API documentation
 3. Check Flask documentation
 
+## 🧪 Testing
+
+### E2E Automated Testing with Playwright
+
+The project includes comprehensive end-to-end tests using Playwright.
+
+**Run all tests:**
+```bash
+npm run test:e2e
+```
+
+**Run tests with UI (interactive):**
+```bash
+npm run test:e2e:ui
+```
+
+**Run only API tests:**
+```bash
+npm run test:e2e:api
+```
+
+**View test report:**
+```bash
+npm run test:report
+```
+
+**Test Coverage:**
+- ✅ Backend health checks
+- ✅ Outfit Rater flow (upload, rate, view results)
+- ✅ Outfit Generator flow (configure, generate, view results)
+- ✅ API endpoint validation
+- ✅ Error handling scenarios
+- ✅ CORS configuration
+- ✅ Performance benchmarks
+
+For more details, see [e2e/README.md](e2e/README.md)
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the [`docs/`](docs/) folder:
+
+- **[Setup Guides](docs/setup/)** - API configuration and integration guides
+- **[Architecture](docs/architecture/)** - Technical architecture and refactoring docs
+- **[Deployment](docs/deployment/)** - Railway, Docker deployment guides
+- **[Testing](docs/testing/)** - Testing tools and documentation
+- **[User Guides](docs/guides/)** - Feature guides and tutorials
+
+Visit [docs/README.md](docs/README.md) for the complete documentation index.
+
 ## 🎉 Acknowledgments
 
 - OpenAI for GPT-4 Vision and DALL-E 3

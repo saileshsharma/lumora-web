@@ -45,6 +45,13 @@ Thumbs.db
 .coverage
 htmlcov/
 
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+node_modules/
+package-lock.json
+
 # Uploads (if you add file storage)
 uploads/
 temp/

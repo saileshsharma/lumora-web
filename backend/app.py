@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
+import json
 import base64
+import traceback
 from io import BytesIO
 from PIL import Image
 import openai
@@ -15,24 +17,46 @@ import fashion_arena
 # Load environment variables
 load_dotenv()
 
-# Configure logging
+# Configure logging with separate log files
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
-# Create log filename with timestamp
-log_filename = os.path.join(log_dir, f"outfit_assistant_{datetime.now().strftime('%Y%m%d')}.log")
+# Create log filenames with timestamp
+date_str = datetime.now().strftime('%Y%m%d')
+app_log = os.path.join(log_dir, f"application_{date_str}.log")
+api_log = os.path.join(log_dir, f"api_calls_{date_str}.log")
+error_log = os.path.join(log_dir, f"errors_{date_str}.log")
 
-# Configure logging format
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_filename),
-        logging.StreamHandler()  # Also output to console
-    ]
-)
+# Common log format
+log_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-logger = logging.getLogger(__name__)
+# Application Logger - General app flow, requests, responses
+app_logger = logging.getLogger('application')
+app_logger.setLevel(logging.INFO)
+app_handler = logging.FileHandler(app_log)
+app_handler.setFormatter(log_format)
+app_logger.addHandler(app_handler)
+# Also log to console
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(log_format)
+app_logger.addHandler(console_handler)
+
+# API Logger - External API calls (OpenAI, NanobananaAPI, FAL)
+api_logger = logging.getLogger('api')
+api_logger.setLevel(logging.INFO)
+api_handler = logging.FileHandler(api_log)
+api_handler.setFormatter(log_format)
+api_logger.addHandler(api_handler)
+
+# Error Logger - Errors and exceptions
+error_logger = logging.getLogger('errors')
+error_logger.setLevel(logging.ERROR)
+error_handler = logging.FileHandler(error_log)
+error_handler.setFormatter(log_format)
+error_logger.addHandler(error_handler)
+
+# Default logger (for backward compatibility)
+logger = app_logger
 
 app = Flask(__name__)
 
@@ -42,9 +66,11 @@ CORS(app, resources={
         "origins": [
             "https://ai-outfit-assistant.vercel.app",
             "http://localhost:5173",  # Vite dev server
+            "http://localhost:5174",  # Vite dev server (new port)
             "http://localhost:3000",  # Alternative port
             "http://localhost:5001",  # Local backend
             "http://127.0.0.1:5173",
+            "http://127.0.0.1:5174",
             "http://127.0.0.1:3000",
             "http://127.0.0.1:5001",
             "https://lumora-web-production.up.railway.app",  # Production frontend
@@ -56,9 +82,13 @@ CORS(app, resources={
     }
 })
 
-logger.info("="*60)
-logger.info("OUTFIT ASSISTANT APPLICATION STARTED")
-logger.info("="*60)
+app_logger.info("="*60)
+app_logger.info("OUTFIT ASSISTANT APPLICATION STARTED")
+app_logger.info("="*60)
+app_logger.info(f"Application Log: {app_log}")
+app_logger.info(f"API Calls Log: {api_log}")
+app_logger.info(f"Errors Log: {error_log}")
+app_logger.info("="*60)
 
 # Configure OpenAI
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -112,12 +142,12 @@ def generate_outfit_image_with_replicate(person_image_base64, outfit_description
     Use NanobananaAPI to generate outfit visualization with face preservation
     """
     try:
-        logger.info("="*60)
-        logger.info("NANOBANANA API IMAGE GENERATION STARTED")
-        logger.info("="*60)
-        logger.info(f"Occasion: {occasion}")
-        logger.info(f"Outfit: {outfit_description[:200]}...")
-        logger.info(f"Background: {background_description}")
+        api_logger.info("="*60)
+        api_logger.info("NANOBANANA API IMAGE GENERATION STARTED")
+        api_logger.info("="*60)
+        api_logger.info(f"Occasion: {occasion}")
+        api_logger.info(f"Outfit: {outfit_description[:200]}...")
+        api_logger.info(f"Background: {background_description}")
         
         nanobanana_api_key = os.getenv('NANOBANANA_API_KEY')
         if not nanobanana_api_key:
@@ -133,12 +163,12 @@ def generate_outfit_image_with_replicate(person_image_base64, outfit_description
             raise Exception("Failed to process person image")
         
         print(f"✓ Person image saved: {person_image_path}")
-        logger.info(f"Person image saved: {person_image_path}")
-        
+        api_logger.info(f"Person image saved: {person_image_path}")
+
         # Upload image to Fal CDN to get a public URL
         image_url = fal_client.upload_file(person_image_path)
         print(f"✓ Image uploaded to CDN: {image_url}")
-        logger.info(f"Image uploaded to CDN: {image_url}")
+        api_logger.info(f"Image uploaded to CDN: {image_url}")
         
         # Step 2: Create prompt for NanobananaAPI
         prompt = f"""Transform this person wearing {outfit_description}. 
@@ -147,14 +177,14 @@ Occasion: {occasion}.
 Keep the same person's face and features exactly as in the original image. Natural pose appropriate for {occasion}, facial expression matching the formality. 
 Photorealistic, professional fashion photography, magazine quality, 3/4 body shot with professional studio lighting."""
         
-        logger.info("-" * 60)
-        logger.info("NANOBANANA API PROMPT:")
-        logger.info(prompt)
-        logger.info("-" * 60)
-        
+        api_logger.info("-" * 60)
+        api_logger.info("NANOBANANA API PROMPT:")
+        api_logger.info(prompt)
+        api_logger.info("-" * 60)
+
         # Step 3: Submit task to NanobananaAPI
         print(f"✓ Calling NanobananaAPI...")
-        logger.info("Calling NanobananaAPI...")
+        api_logger.info("Calling NanobananaAPI...")
         
         headers = {
             "Authorization": f"Bearer {nanobanana_api_key}",
@@ -170,31 +200,39 @@ Photorealistic, professional fashion photography, magazine quality, 3/4 body sho
             "callBackUrl": "https://webhook.site/dummy"  # Dummy callback, we'll poll instead
         }
         
-        logger.info(f"Request payload: {payload}")
+        api_logger.info(f"Request payload: {payload}")
         
-        response = requests.post(
-            "https://api.nanobananaapi.ai/api/v1/nanobanana/generate",
-            headers=headers,
-            json=payload
-        )
-        
-        if response.status_code != 200:
-            logger.error(f"NanobananaAPI request failed: {response.status_code} - {response.text}")
-            raise Exception(f"NanobananaAPI request failed: {response.text}")
-        
+        try:
+            response = requests.post(
+                "https://api.nanobananaapi.ai/api/v1/nanobanana/generate",
+                headers=headers,
+                json=payload
+            )
+
+            if response.status_code != 200:
+                api_logger.error(f"❌ NanobananaAPI request FAILED: {response.status_code} - {response.text}")
+                error_logger.error(f"NanobananaAPI request failed: {response.status_code} - {response.text}")
+                raise Exception(f"NanobananaAPI request failed: {response.text}")
+
+            api_logger.info("✅ NanobananaAPI request SUCCESSFUL")
+        except requests.exceptions.RequestException as e:
+            api_logger.error(f"❌ NanobananaAPI connection FAILED: {str(e)}")
+            error_logger.error(f"NanobananaAPI connection error: {str(e)}")
+            raise
+
         task_data = response.json()
-        logger.info(f"Task submitted: {task_data}")
+        api_logger.info(f"Task submitted: {task_data}")
         
         if task_data.get('code') != 200:
             raise Exception(f"NanobananaAPI error: {task_data.get('msg')}")
         
         task_id = task_data['data']['taskId']
         print(f"✓ Task submitted: {task_id}")
-        logger.info(f"Task ID: {task_id}")
-        
+        api_logger.info(f"Task ID: {task_id}")
+
         # Step 4: Poll for task completion
         print(f"✓ Waiting for image generation...")
-        logger.info("Polling for task completion...")
+        api_logger.info("Polling for task completion...")
         
         import time
         max_attempts = 60  # 60 attempts * 2 seconds = 2 minutes max
@@ -211,29 +249,29 @@ Photorealistic, professional fashion photography, magazine quality, 3/4 body sho
             )
             
             if status_response.status_code != 200:
-                logger.warning(f"Status check failed: {status_response.status_code}")
+                api_logger.warning(f"Status check failed: {status_response.status_code}")
                 continue
-            
+
             status_data = status_response.json()
-            logger.info(f"Attempt {attempt}: Full response = {status_data}")
-            
+            api_logger.info(f"Attempt {attempt}: Full response = {status_data}")
+
             if status_data.get('code') == 200:
                 task_info = status_data.get('data', {})
                 success_flag = task_info.get('successFlag')
-                
-                logger.info(f"Attempt {attempt}: successFlag = {success_flag}")
-                
+
+                api_logger.info(f"Attempt {attempt}: successFlag = {success_flag}")
+
                 if success_flag == 1:
                     # Task completed successfully
                     response_data = task_info.get('response', {})
                     generated_image_url = response_data.get('resultImageUrl')
-                    
+
                     if generated_image_url:
                         print(f"✓ Image generated successfully!")
-                        logger.info(f"Generated image URL: {generated_image_url}")
+                        api_logger.info(f"Generated image URL: {generated_image_url}")
                         break
                     else:
-                        logger.warning(f"Success flag is 1 but no resultImageUrl found")
+                        api_logger.warning(f"Success flag is 1 but no resultImageUrl found")
                 elif success_flag is not None and success_flag != 0:
                     # If successFlag exists and is not 0 or 1, treat as error
                     error_msg = task_info.get('errorMessage', 'Unknown error')
@@ -244,7 +282,7 @@ Photorealistic, professional fashion photography, magazine quality, 3/4 body sho
         # Step 5: Download and optimize the generated image
         response = requests.get(generated_image_url)
         img = Image.open(BytesIO(response.content))
-        logger.info(f"Image downloaded: {len(response.content)} bytes")
+        api_logger.info(f"Image downloaded: {len(response.content)} bytes")
         
         # Resize if needed
         max_size = 1024
@@ -281,18 +319,19 @@ Photorealistic, professional fashion photography, magazine quality, 3/4 body sho
         print("=" * 60)
         print("IMAGE GENERATION SUCCESSFUL!")
         print("=" * 60)
-        
-        logger.info(f"Image size: {len(optimized_data)} bytes")
-        logger.info("="*60)
-        logger.info("IMAGE GENERATION COMPLETE")
-        logger.info("="*60)
-        
+
+        api_logger.info(f"Image size: {len(optimized_data)} bytes")
+        api_logger.info("✅ NANOBANANA IMAGE GENERATION SUCCESSFUL")
+        api_logger.info("="*60)
+        api_logger.info("IMAGE GENERATION COMPLETE")
+        api_logger.info("="*60)
+
         return result_url
-        
+
     except Exception as e:
-        import traceback
-        logger.error(f"Error in NanobananaAPI generation: {e}")
-        logger.error(traceback.format_exc())
+        api_logger.error(f"❌ Error in NanobananaAPI generation: {e}")
+        error_logger.error(f"NanobananaAPI generation failed: {e}")
+        error_logger.error(f"Traceback: {traceback.format_exc()}")
         print(f"Error in NanobananaAPI generation: {e}")
         traceback.print_exc()
         return None
@@ -308,21 +347,21 @@ def rate_outfit():
     Rate an outfit based on uploaded photo, occasion, and budget
     """
     try:
-        logger.info("="*60)
-        logger.info("RATE OUTFIT REQUEST RECEIVED")
-        logger.info("="*60)
-        
+        app_logger.info("="*60)
+        app_logger.info("RATE OUTFIT REQUEST RECEIVED")
+        app_logger.info("="*60)
+
         data = request.json
-        
+
         # Extract parameters
         image_base64 = data.get('image')
         occasion = data.get('occasion', 'Casual Outing')
         budget = data.get('budget', '')
-        
-        logger.info(f"Parameters - Occasion: {occasion}, Budget: {budget}")
-        
+
+        app_logger.info(f"Parameters - Occasion: {occasion}, Budget: {budget}")
+
         if not image_base64:
-            logger.error("No image provided in request")
+            error_logger.error("No image provided in request")
             return jsonify({"error": "No image provided"}), 400
         
         # Build the prompt for GPT-4 Vision
@@ -365,33 +404,46 @@ Format your response as JSON with this structure:
 }}"""
         
         # Call OpenAI GPT-4 Vision API
-        response = openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": image_base64
+        api_logger.info("Calling GPT-4 Vision API for outfit rating...")
+        api_logger.info(f"  Model: gpt-4o")
+        api_logger.info(f"  Max tokens: 1500")
+
+        try:
+            response = openai.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": image_base64
+                                }
                             }
-                        }
-                    ]
-                }
-            ],
-            max_tokens=1500,
-            response_format={"type": "json_object"}
-        )
-        
+                        ]
+                    }
+                ],
+                max_tokens=1500,
+                response_format={"type": "json_object"}
+            )
+            api_logger.info("✅ GPT-4 Vision API call SUCCESSFUL")
+            api_logger.info(f"  Tokens used: {response.usage.total_tokens if hasattr(response, 'usage') else 'N/A'}")
+        except Exception as e:
+            api_logger.error(f"❌ GPT-4 Vision API call FAILED: {str(e)}")
+            error_logger.error(f"GPT-4 Vision API Error in rate_outfit: {str(e)}")
+            raise
+
         # Parse the response
         result = response.choices[0].message.content
-        
+        app_logger.info("Rating analysis completed successfully")
+
         return jsonify({"success": True, "data": result})
-        
+
     except Exception as e:
-        print(f"Error in rate_outfit: {e}")
+        error_logger.error(f"Error in rate_outfit: {str(e)}")
+        error_logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/generate-outfit', methods=['POST'])
@@ -400,12 +452,12 @@ def generate_outfit():
     Generate outfit suggestions based on user preferences with realistic person image
     """
     try:
-        logger.info("="*60)
-        logger.info("GENERATE OUTFIT REQUEST RECEIVED")
-        logger.info("="*60)
-        
+        app_logger.info("="*60)
+        app_logger.info("GENERATE OUTFIT REQUEST RECEIVED")
+        app_logger.info("="*60)
+
         data = request.json
-        
+
         # Extract parameters
         user_image = data.get('user_image', None)
         wow_factor = data.get('wow_factor', 5)
@@ -413,14 +465,14 @@ def generate_outfit():
         budget = data.get('budget', '')
         occasion = data.get('occasion', 'Casual Outing')
         conditions = data.get('conditions', '')
-        
-        logger.info(f"Parameters:")
-        logger.info(f"  - Occasion: {occasion}")
-        logger.info(f"  - Wow Factor: {wow_factor}")
-        logger.info(f"  - Brands: {brands}")
-        logger.info(f"  - Budget: {budget}")
-        logger.info(f"  - Conditions: {conditions}")
-        logger.info(f"  - User image provided: {user_image is not None}")
+
+        app_logger.info(f"Parameters:")
+        app_logger.info(f"  - Occasion: {occasion}")
+        app_logger.info(f"  - Wow Factor: {wow_factor}")
+        app_logger.info(f"  - Brands: {brands}")
+        app_logger.info(f"  - Budget: {budget}")
+        app_logger.info(f"  - Conditions: {conditions}")
+        app_logger.info(f"  - User image provided: {user_image is not None}")
         
         # Build the style description based on wow factor
         if wow_factor <= 3:
@@ -476,10 +528,10 @@ Format as JSON:
   ]
 }}"""
         
-        logger.info("-" * 60)
-        logger.info("GPT-4 OUTFIT DESCRIPTION PROMPT:")
-        logger.info(description_prompt)
-        logger.info("-" * 60)
+        app_logger.info("-" * 60)
+        app_logger.info("GPT-4 OUTFIT DESCRIPTION PROMPT:")
+        app_logger.info(description_prompt)
+        app_logger.info("-" * 60)
         
         messages = [{"role": "user", "content": description_prompt}]
         
@@ -498,24 +550,34 @@ Format as JSON:
                 }
             ]
         
-        logger.info("Calling GPT-4 API...")
-        description_response = openai.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
-            max_tokens=1500,
-            response_format={"type": "json_object"}
-        )
-        
+        api_logger.info("Calling GPT-4 API for outfit description...")
+        api_logger.info(f"  Model: gpt-4o")
+        api_logger.info(f"  Max tokens: 1500")
+
+        try:
+            description_response = openai.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                max_tokens=1500,
+                response_format={"type": "json_object"}
+            )
+            api_logger.info("✅ GPT-4 API call SUCCESSFUL")
+            api_logger.info(f"  Tokens used: {description_response.usage.total_tokens if hasattr(description_response, 'usage') else 'N/A'}")
+        except Exception as e:
+            api_logger.error(f"❌ GPT-4 API call FAILED: {str(e)}")
+            error_logger.error(f"GPT-4 API Error in generate_outfit: {str(e)}")
+            raise
+
         outfit_description = description_response.choices[0].message.content
-        logger.info("GPT-4 Response received")
-        logger.info(f"Outfit Description: {outfit_description[:500]}...")
+        app_logger.info("GPT-4 Response received and extracted")
+        app_logger.info(f"Outfit Description (first 500 chars): {outfit_description[:500]}...")
 
         # Parse JSON response safely
         try:
             outfit_data = json.loads(outfit_description)
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse GPT-4 JSON response: {e}")
-            logger.error(f"Response content: {outfit_description}")
+            error_logger.error(f"Failed to parse GPT-4 JSON response: {e}")
+            error_logger.error(f"Response content: {outfit_description}")
             raise ValueError(f"Invalid JSON response from GPT-4: {str(e)}")
         
         # Build detailed outfit description for image generation
@@ -541,8 +603,8 @@ Format as JSON:
         # Get background or use neutral elegant backdrop as fallback
         background = background_map.get(occasion, 'elegant neutral backdrop with natural lighting')
         
-        logger.info(f"Background selected: {background}")
-        logger.info(f"Outfit details for image: {outfit_details}")
+        app_logger.info(f"Background selected: {background}")
+        app_logger.info(f"Outfit details for image: {outfit_details}")
         
         # Step 4: Generate realistic outfit image using NanobananaAPI
         # Verify prerequisites
@@ -577,9 +639,8 @@ Format as JSON:
         })
         
     except Exception as e:
-        print(f"Error in generate_outfit: {e}")
-        import traceback
-        traceback.print_exc()
+        error_logger.error(f"Error in generate_outfit: {str(e)}")
+        error_logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/regenerate-outfit', methods=['POST'])
@@ -612,9 +673,9 @@ def submit_to_arena():
     Submit a photo to Fashion Arena
     """
     try:
-        logger.info("="*60)
-        logger.info("FASHION ARENA SUBMISSION REQUEST")
-        logger.info("="*60)
+        app_logger.info("="*60)
+        app_logger.info("FASHION ARENA SUBMISSION REQUEST")
+        app_logger.info("="*60)
         
         data = request.json
         
@@ -631,10 +692,10 @@ def submit_to_arena():
 
         # Validate photo data - reject local file paths
         if photo.startswith("file://"):
-            logger.warning(f"Rejected submission with local file path")
+            app_logger.warning(f"Rejected submission with local file path")
             return jsonify({"error": "Invalid photo data. Please use base64-encoded image data."}), 400
 
-        logger.info(f"Submission - Title: {title}, Occasion: {occasion}, Source: {source_mode}")
+        app_logger.info(f"Submission - Title: {title}, Occasion: {occasion}, Source: {source_mode}")
 
         # Submit to Fashion Arena
         submission = fashion_arena.submit_to_arena(
@@ -646,7 +707,7 @@ def submit_to_arena():
             user_id=user_id
         )
         
-        logger.info(f"Submission successful - ID: {submission['id']}")
+        app_logger.info(f"Submission successful - ID: {submission['id']}")
         
         return jsonify({
             "success": True,
@@ -654,7 +715,7 @@ def submit_to_arena():
         })
         
     except Exception as e:
-        logger.error(f"Error in submit_to_arena: {e}")
+        app_logger.error(f"Error in submit_to_arena: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/submissions', methods=['GET'])
@@ -681,7 +742,7 @@ def get_arena_submissions():
         })
         
     except Exception as e:
-        logger.error(f"Error in get_arena_submissions: {e}")
+        app_logger.error(f"Error in get_arena_submissions: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/leaderboard', methods=['GET'])
@@ -699,7 +760,7 @@ def get_arena_leaderboard():
         })
         
     except Exception as e:
-        logger.error(f"Error in get_arena_leaderboard: {e}")
+        app_logger.error(f"Error in get_arena_leaderboard: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/vote', methods=['POST'])
@@ -724,7 +785,7 @@ def vote_on_submission():
         if not (1 <= rating <= 10):
             return jsonify({"error": "Rating must be between 1 and 10"}), 400
         
-        logger.info(f"Vote received - Submission: {submission_id}, Type: {vote_type}, Rating: {rating}")
+        app_logger.info(f"Vote received - Submission: {submission_id}, Type: {vote_type}, Rating: {rating}")
         
         # Submit vote
         updated_submission = fashion_arena.vote_submission(
@@ -743,7 +804,7 @@ def vote_on_submission():
         })
         
     except Exception as e:
-        logger.error(f"Error in vote_on_submission: {e}")
+        app_logger.error(f"Error in vote_on_submission: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/submission/<submission_id>', methods=['GET'])
@@ -763,7 +824,7 @@ def get_submission_details(submission_id):
         })
         
     except Exception as e:
-        logger.error(f"Error in get_submission_details: {e}")
+        app_logger.error(f"Error in get_submission_details: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/stats', methods=['GET'])
@@ -780,7 +841,7 @@ def get_arena_stats():
         })
 
     except Exception as e:
-        logger.error(f"Error in get_arena_stats: {e}")
+        app_logger.error(f"Error in get_arena_stats: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/restore', methods=['POST'])
@@ -789,21 +850,21 @@ def restore_arena_data():
     Restore Fashion Arena data from backup
     """
     try:
-        logger.info("="*60)
-        logger.info("FASHION ARENA DATA RESTORE REQUEST")
-        logger.info("="*60)
+        app_logger.info("="*60)
+        app_logger.info("FASHION ARENA DATA RESTORE REQUEST")
+        app_logger.info("="*60)
 
         data = request.json
 
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        logger.info(f"Restoring data...")
+        app_logger.info(f"Restoring data...")
 
         # Restore data
         count = fashion_arena.restore_data(data)
 
-        logger.info(f"Successfully restored {count} submissions")
+        app_logger.info(f"Successfully restored {count} submissions")
 
         return jsonify({
             "success": True,
@@ -812,7 +873,7 @@ def restore_arena_data():
         })
 
     except Exception as e:
-        logger.error(f"Error in restore_arena_data: {e}")
+        app_logger.error(f"Error in restore_arena_data: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/like', methods=['POST'])
@@ -828,7 +889,7 @@ def like_submission():
         if not submission_id:
             return jsonify({"error": "No submission_id provided"}), 400
 
-        logger.info(f"Like received - Submission: {submission_id}")
+        app_logger.info(f"Like received - Submission: {submission_id}")
 
         # Like submission
         updated_submission = fashion_arena.like_submission(submission_id)
@@ -842,7 +903,7 @@ def like_submission():
         })
 
     except Exception as e:
-        logger.error(f"Error in like_submission: {e}")
+        app_logger.error(f"Error in like_submission: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/cleanup', methods=['POST'])
@@ -851,14 +912,14 @@ def cleanup_invalid_submissions():
     Clean up submissions with invalid photo data (local file paths)
     """
     try:
-        logger.info("="*60)
-        logger.info("FASHION ARENA CLEANUP REQUEST")
-        logger.info("="*60)
+        app_logger.info("="*60)
+        app_logger.info("FASHION ARENA CLEANUP REQUEST")
+        app_logger.info("="*60)
 
         # Cleanup invalid submissions
         result = fashion_arena.cleanup_invalid_submissions()
 
-        logger.info(f"Cleanup complete - Removed {result['removed_count']} invalid submissions")
+        app_logger.info(f"Cleanup complete - Removed {result['removed_count']} invalid submissions")
 
         return jsonify({
             "success": True,
@@ -867,7 +928,7 @@ def cleanup_invalid_submissions():
         })
 
     except Exception as e:
-        logger.error(f"Error in cleanup_invalid_submissions: {e}")
+        app_logger.error(f"Error in cleanup_invalid_submissions: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/submission/<submission_id>', methods=['DELETE'])
@@ -883,7 +944,7 @@ def delete_submission(submission_id):
         if password != '182838':
             return jsonify({"error": "Incorrect password"}), 403
 
-        logger.info(f"Delete request for submission: {submission_id}")
+        app_logger.info(f"Delete request for submission: {submission_id}")
 
         # Delete submission
         success = fashion_arena.delete_submission(submission_id)
@@ -891,7 +952,7 @@ def delete_submission(submission_id):
         if not success:
             return jsonify({"error": "Submission not found"}), 404
 
-        logger.info(f"Submission {submission_id} deleted successfully")
+        app_logger.info(f"Submission {submission_id} deleted successfully")
 
         return jsonify({
             "success": True,
@@ -899,7 +960,7 @@ def delete_submission(submission_id):
         })
 
     except Exception as e:
-        logger.error(f"Error in delete_submission: {e}")
+        app_logger.error(f"Error in delete_submission: {e}")
         return jsonify({"error": str(e)}), 500
 
 # Serve React frontend static files
