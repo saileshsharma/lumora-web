@@ -1,0 +1,80 @@
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-8) var(--container-padding);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-8);
+}
+
+.title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-4);
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.description {
+  font-size: var(--font-size-lg);
+  color: var(--color-gray-600);
+  line-height: var(--line-height-relaxed);
+}
+
+.form {
+  background: var(--color-white);
+  padding: var(--spacing-8);
+  border-radius: var(--radius-none);
+  box-shadow: var(--shadow-lg);
+}
+
+.budgetSection {
+  margin-bottom: var(--spacing-6);
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-3);
+}
+
+.select {
+  width: 100%;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-primary);
+  border: 2px solid var(--color-gray-300);
+  border-radius: var(--radius-none);
+  background: var(--color-white);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.select:hover {
+  border-color: var(--color-gold-primary);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-gold-primary);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-4);
+  }
+
+  .form {
+    padding: var(--spacing-6);
+  }
+
+  .title {
+    font-size: var(--font-size-3xl);
+  }
+}

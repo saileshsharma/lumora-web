@@ -1,0 +1,266 @@
+.container {
+  min-height: 100vh;
+  background: var(--color-off-white);
+}
+
+.hero {
+  background: var(--gradient-black);
+  padding: var(--spacing-12) var(--container-padding);
+  text-align: center;
+  border-bottom: 3px solid var(--color-gold-primary);
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 3px;
+  background: var(--gradient-gold);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+}
+
+.title {
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-bold);
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 var(--spacing-4) 0;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  font-size: var(--font-size-xl);
+  color: var(--color-gray-400);
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.content {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-10) var(--container-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.intro,
+.mission {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 var(--spacing-6) 0;
+  letter-spacing: 0.5px;
+}
+
+.description {
+  font-size: var(--font-size-lg);
+  line-height: 1.8;
+  color: var(--color-gray-700);
+  margin: 0;
+}
+
+.teamSection {
+  width: 100%;
+}
+
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-8);
+}
+
+.memberCard {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all var(--transition-base);
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--spacing-5);
+}
+
+.memberCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.2);
+  border-color: var(--color-gold-primary);
+}
+
+.memberInitial {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+  letter-spacing: 2px;
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.memberName {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
+  margin: 0;
+}
+
+.memberRole {
+  font-size: var(--font-size-lg);
+  color: var(--color-gold-primary);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.memberDescription {
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.tech {
+  width: 100%;
+}
+
+.techGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-8);
+}
+
+.techCard {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-8);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all var(--transition-base);
+  border: 2px solid transparent;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.techCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.techIcon {
+  font-size: 4rem;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+}
+
+.techName {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
+  margin: 0;
+}
+
+.techDescription {
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: var(--spacing-8) var(--container-padding);
+  }
+
+  .title {
+    font-size: var(--font-size-3xl);
+  }
+
+  .subtitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .content {
+    padding: var(--spacing-8) var(--container-padding);
+    gap: var(--spacing-8);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-size-2xl);
+  }
+
+  .description {
+    font-size: var(--font-size-base);
+  }
+
+  .teamGrid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-4);
+  }
+
+  .memberCard {
+    padding: var(--spacing-6);
+  }
+
+  .memberInitial {
+    width: 80px;
+    height: 80px;
+    font-size: var(--font-size-2xl);
+  }
+
+  .memberName {
+    font-size: var(--font-size-xl);
+  }
+
+  .memberRole {
+    font-size: var(--font-size-base);
+  }
+
+  .techGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .techIcon {
+    width: 80px;
+    height: 80px;
+    font-size: 3rem;
+  }
+}

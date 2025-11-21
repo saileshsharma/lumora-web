@@ -1,0 +1,125 @@
+.container {
+  padding: var(--spacing-4);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  background: var(--color-white);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-none);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-base);
+}
+
+.item:hover {
+  transform: translateX(4px);
+}
+
+.item.topThree {
+  background: var(--gradient-gold-overlay);
+  box-shadow: var(--shadow-lg);
+}
+
+.rank {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  min-width: 60px;
+  text-align: center;
+}
+
+.imageContainer {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  border-radius: var(--radius-none);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details {
+  flex: 1;
+}
+
+.titleText {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-1);
+  color: var(--color-black);
+}
+
+.occasion {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-2);
+  color: var(--color-gray-600);
+  font-style: italic;
+}
+
+.stats {
+  display: flex;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.stat {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-600);
+}
+
+.likeButton {
+  background: none;
+  border: none;
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-primary);
+  cursor: pointer;
+  color: var(--color-gray-600);
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.likeButton:hover {
+  color: var(--color-gold-primary);
+  transform: scale(1.1);
+}
+
+.empty {
+  text-align: center;
+  padding: var(--spacing-12);
+  font-size: var(--font-size-lg);
+  color: var(--color-gray-600);
+}
+
+@media (max-width: 768px) {
+  .item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .rank {
+    min-width: auto;
+  }
+
+  .imageContainer {
+    width: 100%;
+    height: 200px;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+}
