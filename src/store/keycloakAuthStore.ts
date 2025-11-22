@@ -140,10 +140,10 @@ export const initializeKeycloakStore = () => {
     const userInfo = getUserInfo();
     const roles = getUserRoles();
 
-    // Convert to User type with required id field
-    const user: User | null = userInfo && userInfo.sub ? {
-      id: userInfo.sub,
-      username: userInfo.preferred_username || userInfo.email || '',
+    // Convert to User type - getUserInfo already returns the right format
+    const user: User | null = userInfo ? {
+      id: userInfo.id || '',
+      username: userInfo.username || userInfo.email || '',
       email: userInfo.email || '',
       name: userInfo.name || '',
       given_name: userInfo.given_name,
