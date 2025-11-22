@@ -16,7 +16,7 @@ This guide explains how to deploy the frontend to CloudFlare Pages while keeping
 
 ## CloudFlare Pages Setup
 
-### Method 1: Via CloudFlare Dashboard (Recommended)
+### Via CloudFlare Dashboard (Recommended)
 
 1. **Login to CloudFlare Dashboard**
    - Go to https://dash.cloudflare.com
@@ -34,6 +34,7 @@ This guide explains how to deploy the frontend to CloudFlare Pages while keeping
    Build command: npm run build
    Build output directory: dist
    Root directory: outfit-assistant/frontend
+   Node version: 20 (automatically detected from .node-version)
    ```
 
 4. **Environment Variables**
@@ -42,29 +43,15 @@ This guide explains how to deploy the frontend to CloudFlare Pages while keeping
    VITE_API_URL = https://web-production-c70ba.up.railway.app/api
    ```
 
-5. **Deploy**
+5. **Build Settings (Important!)**
+   - **DO NOT** add a custom deploy command
+   - CloudFlare Pages automatically handles deployment after build
+   - Leave "Deploy command" empty or set to default
+
+6. **Deploy**
    - Click "Save and Deploy"
-   - Wait for build to complete
+   - Wait for build to complete (~2-3 minutes)
    - Your site will be live at: `https://lumora-frontend.pages.dev`
-
-### Method 2: Via Wrangler CLI
-
-1. **Install Wrangler**
-   ```bash
-   npm install -g wrangler
-   ```
-
-2. **Login to CloudFlare**
-   ```bash
-   wrangler login
-   ```
-
-3. **Deploy**
-   ```bash
-   cd /path/to/frontend
-   npm run build
-   npx wrangler pages deploy dist --project-name=lumora-frontend
-   ```
 
 ## Build Settings Summary
 
@@ -73,7 +60,8 @@ This guide explains how to deploy the frontend to CloudFlare Pages while keeping
 | **Build command** | `npm run build` |
 | **Build output directory** | `dist` |
 | **Root directory** | `outfit-assistant/frontend` |
-| **Node version** | 18 (see `.node-version`) |
+| **Node version** | 20 (see `.node-version`) |
+| **Deploy command** | Leave empty (automatic) |
 | **Environment variables** | `VITE_API_URL=https://web-production-c70ba.up.railway.app/api` |
 
 ## Custom Domain (Optional)

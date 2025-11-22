@@ -1,8 +1,0 @@
-name = "lumora-frontend"
-compatibility_date = "2025-11-22"
-
-[site]
-bucket = "./dist"
-
-# Pages configuration
-pages_build_output_dir = "dist"
