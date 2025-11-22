@@ -30,14 +30,17 @@ CloudFlare is running `npx wrangler deploy` which is **INCORRECT** for CloudFlar
    Build output directory: dist
    Root directory: outfit-assistant/frontend
 
-   >>> DEPLOY COMMAND: [DELETE COMPLETELY - LEAVE EMPTY] <<<
+   >>> DEPLOY COMMAND: npx wrangler pages deploy dist <<<
    ```
 
+   **Note**: If deploy command is mandatory, use: `npx wrangler pages deploy dist`
+   This is the **Pages** deploy command (different from Workers deploy)
+
 6. **Important Notes**
-   - The "Deploy command" field should be **completely empty**
-   - If it says "npx wrangler deploy", **DELETE IT**
-   - CloudFlare Pages handles deployment automatically after build
-   - DO NOT add any custom deploy command
+   - If the field is mandatory, use: `npx wrangler pages deploy dist`
+   - The key difference: `wrangler pages deploy` (not just `wrangler deploy`)
+   - `wrangler deploy` = Workers (wrong) ❌
+   - `wrangler pages deploy dist` = Pages (correct) ✅
 
 7. **Save and Retry**
    - Click "Save" at the bottom
@@ -65,7 +68,7 @@ Executing user deploy command: npx wrangler deploy  ❌ WRONG
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 | Root directory | `outfit-assistant/frontend` |
-| **Deploy command** | **[EMPTY]** |
+| **Deploy command** | `npx wrangler pages deploy dist` |
 | Node.js version | 20 (auto-detected) |
 
 ## Environment Variables
