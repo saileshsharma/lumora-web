@@ -41,20 +41,22 @@ else
 fi
 echo ""
 
-# Check if virtual environment exists
-if [ ! -d "venv" ]; then
+# Check if virtual environment exists in backend directory
+if [ ! -d "backend/venv" ]; then
     echo -e "${YELLOW}⚠️  Virtual environment not found. Creating one...${NC}"
+    cd backend
     python3 -m venv venv
+    cd ..
     echo -e "${GREEN}✅ Virtual environment created${NC}"
 fi
 
 # Activate virtual environment
 echo -e "${BLUE}🔧 Activating virtual environment...${NC}"
-source venv/bin/activate
+source backend/venv/bin/activate
 
 # Install/Update dependencies
 echo -e "${BLUE}📦 Checking backend dependencies...${NC}"
-pip install -q -r requirements.txt
+pip install -q -r backend/requirements.txt
 echo -e "${GREEN}✅ Backend dependencies ready${NC}"
 
 # Check for .env file in backend directory
@@ -67,6 +69,12 @@ if [ ! -f "backend/.env" ]; then
         echo -e "${YELLOW}   ⚠️  Please edit backend/.env and add your API keys:${NC}"
         echo -e "${YELLOW}   - OPENAI_API_KEY=your_key_here${NC}"
         echo -e "${YELLOW}   - FAL_API_KEY=your_key_here${NC}"
+        echo -e "${YELLOW}   - JWT_SECRET_KEY=your_jwt_secret_here${NC}"
+        echo -e "${YELLOW}   - ADMIN_PASSWORD=your_admin_password_here${NC}"
+        echo ""
+        echo -e "${BLUE}   💡 Generate JWT secret key with:${NC}"
+        echo -e "${BLUE}      python3 -c \"import secrets; print(secrets.token_hex(32))\"${NC}"
+        echo ""
         read -p "Press Enter to continue anyway or Ctrl+C to exit..."
     else
         echo -e "${RED}   ❌ backend/.env.example not found!${NC}"
@@ -86,7 +94,20 @@ else
     if grep -q "FAL_API_KEY=.*[a-zA-Z0-9]" backend/.env; then
         echo -e "${GREEN}   ✓ FAL API key configured${NC}"
     else
-        echo -e "${YELLOW}   ⚠️  FAL API key appears to be missing${NC}"
+        echo -e "${YELLOW}   ⚠️  FAL API key appears to be missing (optional)${NC}"
+    fi
+
+    if grep -q "JWT_SECRET_KEY=.*[a-zA-Z0-9]" backend/.env; then
+        echo -e "${GREEN}   ✓ JWT secret key configured${NC}"
+    else
+        echo -e "${YELLOW}   ⚠️  JWT secret key appears to be missing${NC}"
+        echo -e "${BLUE}      Generate one with: python3 -c \"import secrets; print(secrets.token_hex(32))\"${NC}"
+    fi
+
+    if grep -q "ADMIN_PASSWORD=.*[a-zA-Z0-9]" backend/.env; then
+        echo -e "${GREEN}   ✓ Admin password configured${NC}"
+    else
+        echo -e "${YELLOW}   ⚠️  Admin password appears to be missing${NC}"
     fi
 fi
 
@@ -139,9 +160,9 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}🚀 Starting Frontend Server (Port 5174)...${NC}"
+echo -e "${GREEN}🚀 Starting Frontend Server (Port 5173)...${NC}"
 cd frontend
-npm run dev -- --port 5174 > ../frontend.log 2>&1 &
+npm run dev > ../frontend.log 2>&1 &
 FRONTEND_PID=$!
 cd ..
 
@@ -150,7 +171,7 @@ sleep 2
 
 # Check if frontend started successfully
 if kill -0 $FRONTEND_PID 2>/dev/null; then
-    echo -e "${GREEN}✅ Frontend is running on http://localhost:5174${NC}"
+    echo -e "${GREEN}✅ Frontend is running on http://localhost:5173${NC}"
 else
     echo -e "${RED}❌ Frontend failed to start. Check frontend.log for errors.${NC}"
     kill $BACKEND_PID 2>/dev/null
@@ -162,7 +183,7 @@ echo -e "${GREEN}╔════════════════════
 echo -e "${GREEN}║          🎉 All Systems Ready! 🎉          ║${NC}"
 echo -e "${GREEN}╠════════════════════════════════════════════╣${NC}"
 echo -e "${GREEN}║                                            ║${NC}"
-echo -e "${GREEN}║  Frontend: ${BLUE}http://localhost:5174${GREEN}          ║${NC}"
+echo -e "${GREEN}║  Frontend: ${BLUE}http://localhost:5173${GREEN}          ║${NC}"
 echo -e "${GREEN}║  Backend:  ${BLUE}http://localhost:5001${GREEN}          ║${NC}"
 echo -e "${GREEN}║                                            ║${NC}"
 echo -e "${GREEN}║  Logs:                                     ║${NC}"
@@ -178,7 +199,7 @@ echo ""
 if command -v open &> /dev/null; then
     echo -e "${BLUE}🌐 Opening browser...${NC}"
     sleep 1
-    open http://localhost:5174
+    open http://localhost:5173
 fi
 
 # Wait for both processes
