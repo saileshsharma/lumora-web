@@ -6,9 +6,17 @@ import os
 from datetime import datetime
 import uuid
 
-# Use Railway volume path if it exists, otherwise use local path
-# Railway volume is mounted at /app/data
-DATA_DIR = '/app/data' if os.path.exists('/app/data') else '.'
+# Database path configuration
+# Railway: Uses /app/data volume for persistence
+# Development: Uses outfit-assistant directory (one level up from backend/)
+if os.path.exists('/app/data'):
+    # Railway production environment
+    DATA_DIR = '/app/data'
+else:
+    # Local development - DB is in outfit-assistant directory
+    backend_dir = os.path.dirname(os.path.abspath(__file__))  # .../backend
+    DATA_DIR = os.path.dirname(backend_dir)  # .../outfit-assistant
+
 os.makedirs(DATA_DIR, exist_ok=True)
 FASHION_ARENA_DB = os.path.join(DATA_DIR, "fashion_arena_db.json")
 print(f"Fashion Arena DB path: {FASHION_ARENA_DB}")
