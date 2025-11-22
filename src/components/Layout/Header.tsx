@@ -19,6 +19,7 @@ export const Header: React.FC = () => {
     { value: APP_MODES.RATER, label: 'Outfit Rater' },
     { value: APP_MODES.GENERATOR, label: 'Outfit Generator' },
     { value: APP_MODES.ARENA, label: 'Fashion Arena' },
+    { value: APP_MODES.SQUAD, label: 'Style Squad' },
   ];
 
   return (
