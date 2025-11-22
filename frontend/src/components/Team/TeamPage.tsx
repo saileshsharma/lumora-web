@@ -11,14 +11,14 @@ interface TeamMember {
 export const TeamPage: React.FC = () => {
   const team: TeamMember[] = [
     {
-      name: 'Kyn Sze',
-      role: 'Tech Lead',
-      description: 'Leading technical architecture and development of AI-powered fashion solutions.',
-    },
-    {
       name: 'Sailesh Sharma',
       role: 'Tech Lead',
-      description: 'Driving innovation in machine learning models and backend infrastructure.',
+      description: 'Leading technical architecture and driving innovation in machine learning models and backend infrastructure.',
+    },
+    {
+      name: 'Kyn Sze',
+      role: 'Senior Developer',
+      description: 'Building robust AI-powered fashion solutions and implementing cutting-edge features.',
     },
     {
       name: 'Simon Armstrong',
