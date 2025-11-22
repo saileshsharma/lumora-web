@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Loading } from '../common';
-import { BrowseTab } from './BrowseTab_NEW';
-import { LeaderboardTab } from './LeaderboardTab_NEW';
+import { BrowseTab } from './BrowseTab';
+import { LeaderboardTab } from './LeaderboardTab';
 import { useArenaStore } from '../../store/arenaStore';
 import { arenaApi } from '../../services/api';
 import { handleApiError } from '../../utils/toast';
 import { ARENA_TABS } from '../../constants';
 import type { ArenaTab } from '../../types';
-import styles from './FashionArena_NEW.module.css';
+import styles from './FashionArena.module.css';
 
 export const FashionArena: React.FC = () => {
   const {
