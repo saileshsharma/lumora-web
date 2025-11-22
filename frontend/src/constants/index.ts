@@ -27,7 +27,9 @@ export const APP_MODES = {
   RATER: 'rater',
   GENERATOR: 'generator',
   ARENA: 'arena',
+  SQUAD: 'squad',
   TEAM: 'team',
+  PROFILE: 'profile',
 } as const;
 
 // Occasions
@@ -121,4 +123,6 @@ export const STORAGE_KEYS = {
   USER_PREFERENCES: 'outfit_assistant_preferences',
   AUTH: 'outfit_assistant_auth',
   THEME: 'outfit_assistant_theme',
+  OUTFIT_HISTORY: 'outfit_assistant_history',
+  STYLE_PROFILE: 'outfit_assistant_style_profile',
 } as const;

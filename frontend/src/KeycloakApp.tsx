@@ -9,6 +9,7 @@ import { OutfitGenerator } from './components/OutfitGenerator/OutfitGenerator';
 import { FashionArena } from './components/FashionArena/FashionArena';
 import { StyleSquad } from './components/StyleSquad';
 import { TeamPage } from './components/Team/TeamPage';
+import { Profile } from './components/Profile';
 import { useAppStore } from './store/appStore';
 import { useKeycloak } from './providers/KeycloakProvider';
 import { useThemeStore } from './store/themeStore';
@@ -44,6 +45,8 @@ const KeycloakApp: React.FC = () => {
         return <StyleSquad />;
       case APP_MODES.TEAM:
         return <TeamPage />;
+      case APP_MODES.PROFILE:
+        return <Profile />;
       default:
         return <OutfitRater />;
     }
