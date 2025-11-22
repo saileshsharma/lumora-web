@@ -3,7 +3,7 @@ import { EmptyState } from '../common';
 import type { LeaderboardEntry } from '../../types';
 import { arenaApi } from '../../services/api';
 import { showSuccess, handleApiError } from '../../utils/toast';
-import styles from './LeaderboardTab_NEW.module.css';
+import styles from './LeaderboardTab.module.css';
 
 interface LeaderboardTabProps {
   leaderboard: LeaderboardEntry[];

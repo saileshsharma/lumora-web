@@ -5,7 +5,7 @@ import { arenaApi } from '../../services/api';
 import { showSuccess, handleApiError } from '../../utils/toast';
 import type { ArenaSubmission } from '../../types';
 import { ITEMS_PER_PAGE } from '../../constants';
-import styles from './BrowseTab_NEW.module.css';
+import styles from './BrowseTab.module.css';
 
 interface BrowseTabProps {
   submissions: ArenaSubmission[];
