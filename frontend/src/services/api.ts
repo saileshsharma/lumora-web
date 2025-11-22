@@ -42,11 +42,19 @@ async function fetchWithErrorHandling<T>(
     const token = await getToken();
 
     // Build headers with token if available
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      ...options?.headers,
     };
+
+    // Add existing headers
+    if (options?.headers) {
+      Object.entries(options.headers).forEach(([key, value]) => {
+        if (typeof value === 'string') {
+          headers[key] = value;
+        }
+      });
+    }
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;

@@ -3,7 +3,7 @@
  * Initializes and manages Keycloak authentication
  */
 
-import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
 import keycloak, { keycloakInitOptions, getUserInfo, getUserRoles } from '../config/keycloak';
 import type Keycloak from 'keycloak-js';
 

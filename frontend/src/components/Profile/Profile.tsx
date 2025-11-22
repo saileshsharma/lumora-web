@@ -80,14 +80,15 @@ export const Profile: React.FC = () => {
     return name.substring(0, 2).toUpperCase();
   };
 
-  const formatDate = (timestamp?: number): string => {
-    if (!timestamp) return 'N/A';
-    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+  // Unused function - kept for future use
+  // const formatDate = (timestamp?: number): string => {
+  //   if (!timestamp) return 'N/A';
+  //   return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+  //     year: 'numeric',
+  //     month: 'long',
+  //     day: 'numeric',
+  //   });
+  // };
 
   const handleEditProfile = () => {
     // Redirect to Keycloak account management
