@@ -4,6 +4,7 @@
  */
 
 import { API_BASE_URL, ERROR_MESSAGES } from '../constants';
+import { getToken } from '../config/keycloak';
 import type {
   RatingResponse,
   GeneratorResponse,
@@ -37,14 +38,24 @@ async function fetchWithErrorHandling<T>(
   try {
     console.log('API Request:', `${API_BASE_URL}${endpoint}`);
 
+    // Get Keycloak token
+    const token = await getToken();
+
+    // Build headers with token if available
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      ...options?.headers,
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       mode: 'cors',
       credentials: 'omit',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...options?.headers,
-      },
+      headers,
       ...options,
     });
 

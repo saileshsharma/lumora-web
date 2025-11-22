@@ -19,6 +19,14 @@ import style_squad
 import auth_system
 from auth_endpoints import auth_bp
 
+# Import Keycloak authentication
+try:
+    import keycloak_auth
+    KEYCLOAK_AVAILABLE = True
+except ImportError:
+    KEYCLOAK_AVAILABLE = False
+    app_logger.warning("Keycloak authentication module not available")
+
 # Import security modules
 from app.security_config import (
     configure_rate_limiter,
@@ -146,6 +154,14 @@ def get_current_user_id():
         return None
 
 app_logger.info("✓ JWT authentication configured")
+
+# Initialize Keycloak if enabled
+USE_KEYCLOAK = os.getenv('USE_KEYCLOAK', 'false').lower() == 'true'
+if USE_KEYCLOAK and KEYCLOAK_AVAILABLE:
+    keycloak_auth.init_keycloak()
+    app_logger.info("✓ Keycloak authentication enabled")
+else:
+    app_logger.info("ℹ Using legacy JWT authentication")
 
 # Configure rate limiting
 limiter = configure_rate_limiter(app)

@@ -1,0 +1,26 @@
+name = "lumora-frontend"
+compatibility_date = "2025-11-22"
+
+# CloudFlare Pages - Static Assets Configuration
+# This tells wrangler to deploy the dist directory as a static site
+[assets]
+directory = "./dist"
+
+# Environment variables for Keycloak integration
+# Note: Set VITE_KEYCLOAK_URL and VITE_API_URL as secrets via:
+# wrangler secret put VITE_KEYCLOAK_URL
+# wrangler secret put VITE_API_URL
+
+[vars]
+VITE_KEYCLOAK_REALM = "lumora"
+VITE_KEYCLOAK_CLIENT_ID = "lumora-frontend"
+
+# Production environment configuration
+[env.production]
+name = "lumora-frontend"
+vars = { VITE_KEYCLOAK_REALM = "lumora", VITE_KEYCLOAK_CLIENT_ID = "lumora-frontend" }
+
+# Development/staging environment
+[env.staging]
+name = "lumora-frontend-staging"
+vars = { VITE_KEYCLOAK_REALM = "lumora", VITE_KEYCLOAK_CLIENT_ID = "lumora-frontend" }

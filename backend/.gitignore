@@ -29,7 +29,8 @@ nohup.out
 # Database
 *.db
 *.sqlite
-fashion_arena_db.json
+# Note: fashion_arena_db.json is tracked for Railway deployment initial data
+# fashion_arena_db.json
 
 # IDE
 .vscode/

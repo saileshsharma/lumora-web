@@ -54,12 +54,6 @@ export const KeycloakLogin: React.FC = () => {
               🚀 Create Account
             </Button>
           </div>
-
-          <div className={styles.infoText} style={{ marginTop: '2rem', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.9rem', color: '#666', margin: 0 }}>
-              Secure authentication powered by Keycloak
-            </p>
-          </div>
         </div>
 
         <div className={styles.features}>
