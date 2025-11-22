@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import keycloak, { getUserInfo, getUserRoles, hasRole, hasAnyRole } from '../config/keycloak';
+import keycloak, { getUserInfo, getUserRoles } from '../config/keycloak';
 
 interface User {
   id: string;
@@ -137,8 +137,19 @@ export const useKeycloakAuthStore = create<KeycloakAuthState>()(
 // Initialize store from Keycloak
 export const initializeKeycloakStore = () => {
   if (keycloak.authenticated) {
-    const user = getUserInfo();
+    const userInfo = getUserInfo();
     const roles = getUserRoles();
+
+    // Convert to User type with required id field
+    const user: User | null = userInfo && userInfo.sub ? {
+      id: userInfo.sub,
+      username: userInfo.preferred_username || userInfo.email || '',
+      email: userInfo.email || '',
+      name: userInfo.name || '',
+      given_name: userInfo.given_name,
+      family_name: userInfo.family_name,
+      email_verified: userInfo.email_verified,
+    } : null;
 
     useKeycloakAuthStore.getState().setUser(user);
     useKeycloakAuthStore.getState().setRoles(roles);
