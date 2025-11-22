@@ -4,6 +4,7 @@ import { useKeycloak } from '../../providers/KeycloakProvider';
 import { useThemeStore } from '../../store/themeStore';
 import { useFavoritesStore } from '../../store/favoritesStore';
 import { OutfitHistory } from '../OutfitHistory/OutfitHistory';
+import { LogoutConfirmModal } from '../common';
 import { APP_MODES } from '../../constants';
 import type { AppMode } from '../../types';
 import styles from './Header.module.css';
@@ -15,6 +16,7 @@ export const Header: React.FC = () => {
   const { history } = useFavoritesStore();
   const [showHistory, setShowHistory] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const modes: { value: AppMode; label: string }[] = [
     { value: APP_MODES.RATER, label: 'Outfit Rater' },
@@ -23,9 +25,18 @@ export const Header: React.FC = () => {
     { value: APP_MODES.SQUAD, label: 'Style Squad' },
   ];
 
-  const handleLogout = () => {
-    keycloakLogout();
+  const handleLogoutClick = () => {
     setShowUserMenu(false);
+    setShowLogoutConfirm(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setShowLogoutConfirm(false);
+    keycloakLogout();
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutConfirm(false);
   };
 
   const handleProfileClick = () => {
@@ -88,7 +99,7 @@ export const Header: React.FC = () => {
                   <button className={styles.menuItem} onClick={handleProfileClick}>
                     👤 My Profile
                   </button>
-                  <button className={styles.menuItem} onClick={handleLogout}>
+                  <button className={styles.menuItem} onClick={handleLogoutClick}>
                     🚪 Logout
                   </button>
                 </div>
@@ -100,6 +111,13 @@ export const Header: React.FC = () => {
 
       {/* Outfit History Modal */}
       <OutfitHistory isOpen={showHistory} onClose={() => setShowHistory(false)} />
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmModal
+        isOpen={showLogoutConfirm}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
     </header>
   );
 };

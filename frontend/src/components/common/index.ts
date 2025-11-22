@@ -10,3 +10,5 @@ export { ImageUpload } from './ImageUpload';
 export { OccasionSelect } from './OccasionSelect';
 export { CameraModal } from './CameraModal';
 export { EmptyState } from './EmptyState';
+export { ArenaSubmitModal } from './ArenaSubmitModal';
+export { LogoutConfirmModal } from './LogoutConfirmModal';

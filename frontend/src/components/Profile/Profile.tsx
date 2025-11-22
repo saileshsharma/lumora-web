@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useKeycloak } from '../../providers/KeycloakProvider';
 import { getUserInfo, getUserRoles } from '../../config/keycloak';
+import { LogoutConfirmModal } from '../common';
 import styles from './Profile.module.css';
 
 interface UserProfile {
@@ -21,7 +22,7 @@ interface UserStats {
 }
 
 export const Profile: React.FC = () => {
-  const { keycloak } = useKeycloak();
+  const { keycloak, logout } = useKeycloak();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [stats, setStats] = useState<UserStats>({
@@ -31,6 +32,7 @@ export const Profile: React.FC = () => {
     favoriteOutfits: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [preferences, setPreferences] = useState({
     emailNotifications: true,
     arenaNotifications: true,
@@ -111,6 +113,19 @@ export const Profile: React.FC = () => {
       [key]: !prev[key],
     }));
     // TODO: Save to backend
+  };
+
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setShowLogoutConfirm(false);
+    logout();
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutConfirm(false);
   };
 
   if (loading) {
@@ -361,7 +376,25 @@ export const Profile: React.FC = () => {
             <div>→</div>
           </div>
         </div>
+
+        {/* Danger Zone - Logout */}
+        <div className={styles.dangerZone}>
+          <div className={styles.dangerTitle}>Sign Out</div>
+          <div className={styles.dangerDescription}>
+            Sign out of your account. You can sign back in anytime.
+          </div>
+          <button className={styles.dangerButton} onClick={handleLogoutClick}>
+            🚪 Logout
+          </button>
+        </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmModal
+        isOpen={showLogoutConfirm}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
     </div>
   );
 };
