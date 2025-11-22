@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, get_jwt
+from marshmallow import ValidationError
 import os
 import json
 import base64
@@ -13,6 +15,29 @@ import fal_client
 import logging
 from datetime import datetime
 import fashion_arena
+import style_squad
+import auth_system
+from auth_endpoints import auth_bp
+
+# Import security modules
+from app.security_config import (
+    configure_rate_limiter,
+    configure_security_headers,
+    validate_request_data,
+    validate_admin_password,
+    validate_image_data,
+    RATE_LIMITS,
+    OutfitRatingSchema,
+    OutfitGenerationSchema,
+    VirtualTryOnSchema,
+    ArenaSubmissionSchema,
+    ArenaVoteSchema,
+    SquadCreateSchema,
+    SquadJoinSchema,
+    SquadOutfitSchema,
+    SquadVoteSchema,
+    SquadMessageSchema,
+)
 
 # Load environment variables
 load_dotenv()
@@ -65,6 +90,7 @@ CORS(app, resources={
     r"/api/*": {
         "origins": [
             "https://ai-outfit-assistant.vercel.app",
+            "https://lumora.aihack.workers.dev",  # CloudFlare Workers deployment
             "http://localhost:5173",  # Vite dev server
             "http://localhost:5174",  # Vite dev server (new port)
             "http://localhost:3000",  # Alternative port
@@ -88,6 +114,53 @@ app_logger.info("="*60)
 app_logger.info(f"Application Log: {app_log}")
 app_logger.info(f"API Calls Log: {api_log}")
 app_logger.info(f"Errors Log: {error_log}")
+app_logger.info("="*60)
+
+# ============================================================================
+# SECURITY CONFIGURATION
+# ============================================================================
+
+# Configure JWT
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', os.urandom(32).hex())
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 900  # 15 minutes
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 604800  # 7 days
+jwt = JWTManager(app)
+
+# JWT token blacklist checker
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+    jti = jwt_payload['jti']
+    return auth_system.is_token_blacklisted(jti)
+
+# Helper function to get current user ID (optional authentication)
+def get_current_user_id():
+    """
+    Get current user ID from JWT token if present
+    Returns None if not authenticated (allows optional auth)
+    """
+    try:
+        from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+        verify_jwt_in_request(optional=True)
+        return get_jwt_identity()
+    except:
+        return None
+
+app_logger.info("✓ JWT authentication configured")
+
+# Configure rate limiting
+limiter = configure_rate_limiter(app)
+app_logger.info("✓ Rate limiting configured")
+
+# Configure security headers
+talisman = configure_security_headers(app)
+app_logger.info("✓ Security headers configured")
+
+# Register authentication blueprint
+app.register_blueprint(auth_bp)
+app_logger.info("✓ Authentication endpoints registered")
+
+app_logger.info("="*60)
+app_logger.info("SECURITY FEATURES ENABLED")
 app_logger.info("="*60)
 
 # Configure OpenAI
@@ -342,6 +415,7 @@ def health_check():
     return jsonify({"status": "healthy", "message": "Outfit Assistant API is running"})
 
 @app.route('/api/rate-outfit', methods=['POST'])
+@limiter.limit(RATE_LIMITS["ai_rating"])
 def rate_outfit():
     """
     Rate an outfit based on uploaded photo, occasion, and budget
@@ -353,10 +427,25 @@ def rate_outfit():
 
         data = request.json
 
+        # Validate input data
+        try:
+            validated_data = validate_request_data(OutfitRatingSchema, {
+                'photo': data.get('image'),
+                'occasion': data.get('occasion', 'casual')
+            })
+        except ValidationError as e:
+            error_logger.error(f"Validation error: {e.messages}")
+            return jsonify({"error": "Invalid input data", "details": e.messages}), 400
+
         # Extract parameters
-        image_base64 = data.get('image')
-        occasion = data.get('occasion', 'Casual Outing')
+        image_base64 = validated_data['photo']
+        occasion = validated_data['occasion']
         budget = data.get('budget', '')
+
+        # Additional image validation
+        if not validate_image_data(image_base64):
+            error_logger.error("Invalid image data format")
+            return jsonify({"error": "Invalid image data"}), 400
 
         app_logger.info(f"Parameters - Occasion: {occasion}, Budget: {budget}")
 
@@ -447,6 +536,7 @@ Format your response as JSON with this structure:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/generate-outfit', methods=['POST'])
+@limiter.limit(RATE_LIMITS["ai_generation"])
 def generate_outfit():
     """
     Generate outfit suggestions based on user preferences with realistic person image
@@ -458,13 +548,24 @@ def generate_outfit():
 
         data = request.json
 
+        # Validate input data
+        try:
+            validated_data = validate_request_data(OutfitGenerationSchema, {
+                'occasion': data.get('occasion', 'casual'),
+                'style': data.get('style', ''),
+                'preferences': data.get('conditions', '')
+            })
+        except ValidationError as e:
+            error_logger.error(f"Validation error: {e.messages}")
+            return jsonify({"error": "Invalid input data", "details": e.messages}), 400
+
         # Extract parameters
         user_image = data.get('user_image', None)
         wow_factor = data.get('wow_factor', 5)
         brands = data.get('brands', [])
         budget = data.get('budget', '')
-        occasion = data.get('occasion', 'Casual Outing')
-        conditions = data.get('conditions', '')
+        occasion = validated_data['occasion']
+        conditions = validated_data.get('preferences', '')
 
         app_logger.info(f"Parameters:")
         app_logger.info(f"  - Occasion: {occasion}")
@@ -668,6 +769,7 @@ def regenerate_outfit():
 # ============================================================================
 
 @app.route('/api/arena/submit', methods=['POST'])
+@limiter.limit(RATE_LIMITS["user_action"])
 def submit_to_arena():
     """
     Submit a photo to Fashion Arena
@@ -719,6 +821,7 @@ def submit_to_arena():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/submissions', methods=['GET'])
+@limiter.limit(RATE_LIMITS["api_read"])
 def get_arena_submissions():
     """
     Get all Fashion Arena submissions
@@ -726,21 +829,31 @@ def get_arena_submissions():
     try:
         sort_by = request.args.get('sort_by', 'recent')
         submissions = fashion_arena.get_all_submissions(sort_by=sort_by)
-        
-        # Remove photo data to reduce payload size (send thumbnails separately if needed)
+
+        # Transform field names to match frontend expectations
         for sub in submissions:
+            # Map average_rating to avg_rating
+            if 'average_rating' in sub:
+                sub['avg_rating'] = sub.pop('average_rating')
+            # Map total_votes to votes (if needed)
+            if 'total_votes' in sub:
+                sub['votes'] = sub['total_votes']
+            # Ensure likes field exists (default to total_votes if not present)
+            if 'likes' not in sub:
+                sub['likes'] = sub.get('votes', 0)
+
             if 'photo' in sub:
                 # Keep only first 100 chars of base64 for preview indicator
                 sub['has_photo'] = bool(sub['photo'])
                 # Don't remove photo completely for now, client needs it
                 # sub.pop('photo')
-        
+
         return jsonify({
             "success": True,
             "submissions": submissions,
             "total": len(submissions)
         })
-        
+
     except Exception as e:
         app_logger.error(f"Error in get_arena_submissions: {e}")
         return jsonify({"error": str(e)}), 500
@@ -753,17 +866,30 @@ def get_arena_leaderboard():
     try:
         limit = int(request.args.get('limit', 10))
         leaderboard = fashion_arena.get_leaderboard(limit=limit)
-        
+
+        # Transform field names to match frontend expectations
+        for entry in leaderboard:
+            # Map average_rating to avg_rating
+            if 'average_rating' in entry:
+                entry['avg_rating'] = entry.pop('average_rating')
+            # Map total_votes to votes
+            if 'total_votes' in entry:
+                entry['votes'] = entry['total_votes']
+            # Ensure likes field exists
+            if 'likes' not in entry:
+                entry['likes'] = entry.get('votes', 0)
+
         return jsonify({
             "success": True,
             "leaderboard": leaderboard
         })
-        
+
     except Exception as e:
         app_logger.error(f"Error in get_arena_leaderboard: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/vote', methods=['POST'])
+@limiter.limit(RATE_LIMITS["user_action"])
 def vote_on_submission():
     """
     Vote on a Fashion Arena submission
@@ -932,19 +1058,25 @@ def cleanup_invalid_submissions():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/arena/submission/<submission_id>', methods=['DELETE'])
+@limiter.limit(RATE_LIMITS["admin"])
 def delete_submission(submission_id):
     """
-    Delete a submission (password protected)
+    Delete a submission (admin password protected)
     """
     try:
         data = request.json
         password = data.get('password')
 
-        # Check password
-        if password != '182838':
-            return jsonify({"error": "Incorrect password"}), 403
+        # Validate admin password from environment variable
+        try:
+            if not validate_admin_password(password):
+                error_logger.warning(f"Failed admin authentication attempt for deletion of {submission_id}")
+                return jsonify({"error": "Incorrect password"}), 403
+        except ValueError as e:
+            error_logger.error(f"Admin password validation error: {e}")
+            return jsonify({"error": "Server configuration error"}), 500
 
-        app_logger.info(f"Delete request for submission: {submission_id}")
+        app_logger.info(f"✓ Admin authenticated - Delete request for submission: {submission_id}")
 
         # Delete submission
         success = fashion_arena.delete_submission(submission_id)
@@ -952,7 +1084,7 @@ def delete_submission(submission_id):
         if not success:
             return jsonify({"error": "Submission not found"}), 404
 
-        app_logger.info(f"Submission {submission_id} deleted successfully")
+        app_logger.info(f"✓ Submission {submission_id} deleted successfully")
 
         return jsonify({
             "success": True,
@@ -976,6 +1108,179 @@ def serve_frontend(path):
 
     # Otherwise, serve index.html (for client-side routing)
     return send_from_directory(frontend_dir, 'index.html')
+
+# ============================================================================
+# STYLE SQUAD API ENDPOINTS
+# ============================================================================
+
+@app.route('/api/squad/create', methods=['POST'])
+@limiter.limit(RATE_LIMITS["user_action"])
+def create_style_squad():
+    """Create a new Style Squad"""
+    try:
+        data = request.json
+        squad = style_squad.create_squad(
+            name=data['name'],
+            description=data.get('description'),
+            user_id=data['userId'],
+            user_name=data['userName'],
+            max_members=data.get('maxMembers', 10)
+        )
+        return jsonify(squad), 201
+    except Exception as e:
+        api_logger.error(f"Error creating squad: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/join', methods=['POST'])
+@limiter.limit(RATE_LIMITS["user_action"])
+def join_style_squad():
+    """Join a Squad using invite code"""
+    try:
+        data = request.json
+        squad = style_squad.join_squad(
+            invite_code=data['inviteCode'],
+            user_id=data['userId'],
+            user_name=data['userName']
+        )
+
+        if squad:
+            return jsonify(squad), 200
+        else:
+            return jsonify({'error': 'Invalid invite code'}), 404
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        api_logger.error(f"Error joining squad: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/<squad_id>', methods=['GET'])
+def get_style_squad(squad_id):
+    """Get squad details"""
+    try:
+        squad = style_squad.get_squad(squad_id)
+        if squad:
+            return jsonify(squad), 200
+        else:
+            return jsonify({'error': 'Squad not found'}), 404
+    except Exception as e:
+        api_logger.error(f"Error getting squad: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/user/<user_id>', methods=['GET'])
+def get_user_style_squads(user_id):
+    """Get all squads for a user"""
+    try:
+        squads = style_squad.get_user_squads(user_id)
+        return jsonify(squads), 200
+    except Exception as e:
+        api_logger.error(f"Error getting user squads: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/<squad_id>/leave', methods=['POST'])
+def leave_style_squad(squad_id):
+    """Leave a squad"""
+    try:
+        data = request.json
+        success = style_squad.leave_squad(squad_id, data['userId'])
+        if success:
+            return jsonify({'message': 'Left squad successfully'}), 200
+        else:
+            return jsonify({'error': 'Squad not found'}), 404
+    except Exception as e:
+        api_logger.error(f"Error leaving squad: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/<squad_id>/outfit', methods=['POST'])
+@limiter.limit(RATE_LIMITS["user_action"])
+def share_squad_outfit(squad_id):
+    """Share an outfit to squad for feedback"""
+    try:
+        data = request.json
+        outfit = style_squad.share_outfit(
+            squad_id=squad_id,
+            user_id=data['userId'],
+            user_name=data['userName'],
+            photo=data['photo'],
+            occasion=data['occasion'],
+            question=data.get('question')
+        )
+
+        if outfit:
+            return jsonify(outfit), 201
+        else:
+            return jsonify({'error': 'Squad not found'}), 404
+    except Exception as e:
+        api_logger.error(f"Error sharing outfit: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/outfit/<outfit_id>/vote', methods=['POST'])
+@limiter.limit(RATE_LIMITS["user_action"])
+def vote_squad_outfit(outfit_id):
+    """Vote on a squad outfit"""
+    try:
+        data = request.json
+        success = style_squad.vote_on_outfit(
+            outfit_id=outfit_id,
+            user_id=data['userId'],
+            user_name=data['userName'],
+            vote_type=data['voteType'],
+            comment=data.get('comment')
+        )
+
+        if success:
+            return jsonify({'message': 'Vote recorded'}), 200
+        else:
+            return jsonify({'error': 'Outfit not found'}), 404
+    except Exception as e:
+        api_logger.error(f"Error voting on outfit: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/outfit/<outfit_id>/message', methods=['POST'])
+@limiter.limit(RATE_LIMITS["user_action"])
+def send_squad_message(outfit_id):
+    """Send a message on squad outfit"""
+    try:
+        data = request.json
+        success = style_squad.send_message(
+            outfit_id=outfit_id,
+            user_id=data['userId'],
+            user_name=data['userName'],
+            message=data['message']
+        )
+
+        if success:
+            return jsonify({'message': 'Message sent'}), 200
+        else:
+            return jsonify({'error': 'Outfit not found'}), 404
+    except Exception as e:
+        api_logger.error(f"Error sending message: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/<squad_id>/outfits', methods=['GET'])
+def get_squad_outfits_route(squad_id):
+    """Get recent outfits from squad"""
+    try:
+        limit = request.args.get('limit', 20, type=int)
+        outfits = style_squad.get_squad_outfits(squad_id, limit)
+        return jsonify(outfits), 200
+    except Exception as e:
+        api_logger.error(f"Error getting squad outfits: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/squad/<squad_id>/delete', methods=['DELETE'])
+def delete_style_squad(squad_id):
+    """Delete a squad (creator only)"""
+    try:
+        data = request.json
+        success = style_squad.delete_squad(squad_id, data['userId'])
+
+        if success:
+            return jsonify({'message': 'Squad deleted'}), 200
+        else:
+            return jsonify({'error': 'Squad not found or unauthorized'}), 404
+    except Exception as e:
+        api_logger.error(f"Error deleting squad: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Check if API key is configured

@@ -7,6 +7,7 @@ import { Login } from './components/Auth/Login';
 import { OutfitRater } from './components/OutfitRater/OutfitRater';
 import { OutfitGenerator } from './components/OutfitGenerator/OutfitGenerator';
 import { FashionArena } from './components/FashionArena/FashionArena';
+import { StyleSquad } from './components/StyleSquad';
 import { TeamPage } from './components/Team/TeamPage';
 import { useAppStore } from './store/appStore';
 import { useAuthStore } from './store/authStore';
@@ -16,7 +17,7 @@ import './styles/global.css';
 
 const App: React.FC = () => {
   const currentMode = useAppStore((state) => state.currentMode);
-  const { isAuthenticated, login } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { theme, setTheme } = useThemeStore();
 
   // Initialize theme on mount
@@ -32,6 +33,8 @@ const App: React.FC = () => {
         return <OutfitGenerator />;
       case APP_MODES.ARENA:
         return <FashionArena />;
+      case APP_MODES.SQUAD:
+        return <StyleSquad />;
       case APP_MODES.TEAM:
         return <TeamPage />;
       default:
@@ -43,7 +46,7 @@ const App: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <ErrorBoundary>
-        <Login onLogin={login} />
+        <Login />
         <Toaster />
       </ErrorBoundary>
     );

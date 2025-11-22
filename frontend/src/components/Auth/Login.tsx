@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from '../common';
 import { showError, showSuccess } from '../../utils/toast';
+import { useAuthStore } from '../../store/authStore';
 import styles from './Login.module.css';
 
-interface LoginProps {
-  onLogin: (email: string, password: string) => Promise<void>;
-}
-
-export const Login: React.FC<LoginProps> = ({ onLogin }) => {
+export const Login: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const { login, register } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +41,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      await onLogin(email, password);
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await register(email, password, name);
+      }
       showSuccess(isLogin ? 'Welcome back!' : 'Account created successfully!');
     } catch (error: any) {
       showError(error.message || 'Authentication failed. Please try again.');
@@ -174,12 +177,6 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <button type="button" onClick={toggleMode} className={styles.switchButton}>
                 {isLogin ? 'Sign Up' : 'Sign In'}
               </button>
-            </p>
-          </div>
-
-          <div className={styles.demoInfo}>
-            <p className={styles.demoText}>
-              <strong>Demo Mode:</strong> Use any email and password to try the app
             </p>
           </div>
         </div>
