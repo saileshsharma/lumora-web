@@ -53,13 +53,17 @@ export const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ leaderboard, onR
               <div className={styles.titleText}>{entry.title}</div>
               <div className={styles.occasion}>{entry.occasion}</div>
               <div className={styles.stats}>
-                <span className={styles.stat}>⭐ {entry.avg_rating.toFixed(1)}/10</span>
+                <span className={styles.stat}>
+                  ⭐ {entry.avg_rating ? entry.avg_rating.toFixed(1) : '0.0'}/10
+                </span>
                 <span className={styles.stat}>
                   <button className={styles.likeButton} onClick={() => handleLike(entry.id)}>
-                    👍 {entry.likes}
+                    👍 {entry.likes || 0}
                   </button>
                 </span>
-                {entry.votes > 0 && <span className={styles.stat}>🗳️ {entry.votes} votes</span>}
+                {(entry.votes || 0) > 0 && (
+                  <span className={styles.stat}>🗳️ {entry.votes} votes</span>
+                )}
               </div>
             </div>
           </div>
