@@ -1,50 +1,13 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-ENV/
-.venv
-
-# Environment variables - NEVER commit these!
+# Environment files
 .env
 .env.*
-.env.local
-.env.development
-.env.dev
-.env.production
-.env.prod
-.env.test
-.env.staging
+!.env.example
 
 # Logs
-logs/
 *.log
+logs/*.log
 backend.log
-nohup.out
 
-# Database
-*.db
-*.sqlite
-# Note: fashion_arena_db.json is tracked for Railway deployment initial data
-# fashion_arena_db.json
-
-# IDE
-.vscode/
-.idea/
-*.swp
-.DS_Store
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Distribution
-dist/
-build/
-*.egg-info/
-.env.example
+# Keep logs directory but ignore contents
+logs/*
+!logs/.gitkeep
