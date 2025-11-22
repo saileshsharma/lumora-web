@@ -19,6 +19,36 @@ An intelligent fashion assistant that uses AI to rate existing outfits and gener
 - **Condition-Based**: Add special requirements (colors, items, restrictions)
 - **Shopping Integration**: Get specific product recommendations matching the generated outfit
 
+### Mode 3: Fashion Arena
+- **Community Sharing**: Share your outfits with the community
+- **Voting System**: Vote on other users' outfits
+- **Leaderboard**: Compete for the top spots
+- **Like & Engage**: Show appreciation for great outfits
+
+### Mode 4: Style Squad
+- **Create Squads**: Form fashion groups with friends
+- **Share Outfits**: Post outfits within your squad
+- **Vote & Comment**: Provide feedback to squad members
+- **Real-time Chat**: Discuss fashion choices instantly
+
+## 🔐 Security Features
+
+### Authentication System
+- **JWT Authentication**: Secure token-based authentication
+- **User Registration**: Create accounts with email/password
+- **Auto-Refresh**: Automatic token refresh for seamless experience
+- **Secure Logout**: Token revocation and blacklisting
+
+### Security Measures
+- **Rate Limiting**: Protection against API abuse
+- **Security Headers**: HSTS, CSP, X-Frame-Options
+- **Input Validation**: Server-side validation with Marshmallow
+- **Password Hashing**: Bcrypt with automatic salt generation
+- **CORS Protection**: Configured allowed origins
+- **Admin Authentication**: Protected administrative operations
+
+See [JWT_AUTHENTICATION.md](JWT_AUTHENTICATION.md) for complete authentication documentation.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -51,15 +81,25 @@ An intelligent fashion assistant that uses AI to rate existing outfits and gener
    pip install -r requirements.txt
    ```
 
-3. **Configure OpenAI API Key**
+3. **Configure Environment Variables**
    ```bash
    # Create .env file from template
    copy .env.example .env  # Windows
    # OR
    cp .env.example .env    # macOS/Linux
-   
-   # Edit .env file and add your OpenAI API key
+
+   # Edit .env file and add your API keys
    # OPENAI_API_KEY=sk-your-actual-api-key-here
+   # FAL_API_KEY=your-fal-api-key-here (optional, for virtual try-on)
+   # NANOBANANA_API_KEY=your-nanobanana-key-here (optional)
+
+   # Generate a secure JWT secret key
+   python3 -c "import secrets; print(secrets.token_hex(32))"
+   # Add the output to .env:
+   # JWT_SECRET_KEY=generated-key-here
+
+   # Set admin password for protected operations
+   # ADMIN_PASSWORD=your-secure-admin-password-here
    ```
 
 4. **Start the Backend Server**
