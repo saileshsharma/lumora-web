@@ -1,9 +1,43 @@
 /**
  * Outfit Actions Utilities
  * Functions for sharing, downloading, and managing outfits
+ * Safari-compatible with proper fallbacks
  */
 
 import html2canvas from 'html2canvas';
+
+/**
+ * Copy text to clipboard with Safari fallback
+ */
+const copyToClipboard = async (text: string): Promise<void> => {
+  // Try modern Clipboard API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch (err) {
+      console.warn('Clipboard API failed, using fallback', err);
+    }
+  }
+
+  // Fallback for Safari and older browsers
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    document.execCommand('copy');
+    textArea.remove();
+  } catch (err) {
+    textArea.remove();
+    throw new Error('Failed to copy to clipboard');
+  }
+};
 
 /**
  * Share outfit to social media or copy link
@@ -22,7 +56,7 @@ export const shareOutfit = async (
       window.open(
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${hashtags}`,
         '_blank',
-        'width=600,height=400'
+        'width=600,height=400,noopener,noreferrer'
       );
       break;
 
@@ -30,49 +64,75 @@ export const shareOutfit = async (
       window.open(
         `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,
         '_blank',
-        'width=600,height=400'
+        'width=600,height=400,noopener,noreferrer'
       );
       break;
 
     case 'instagram':
       // Instagram doesn't support direct sharing via URL
       // Copy link and show instructions
-      await navigator.clipboard.writeText(`${text}\n${url}`);
-      alert(
-        'Link copied! Open Instagram and paste this in your story or bio.\n\nTip: Screenshot the outfit and share it directly!'
-      );
+      try {
+        await copyToClipboard(`${text}\n${url}`);
+        alert(
+          'Link copied! Open Instagram and paste this in your story or bio.\n\nTip: Screenshot the outfit and share it directly!'
+        );
+      } catch (error) {
+        throw new Error('Failed to copy link. Please try again.');
+      }
       break;
 
     case 'copy':
-      await navigator.clipboard.writeText(`${text}\n${url}`);
-      return 'Link copied to clipboard!';
+      try {
+        await copyToClipboard(`${text}\n${url}`);
+        return 'Link copied to clipboard!';
+      } catch (error) {
+        throw new Error('Failed to copy link. Please try again.');
+      }
   }
 
   return null;
 };
 
 /**
- * Download outfit image as PNG
+ * Download outfit image as PNG (Safari-compatible)
  */
 export const downloadOutfitImage = async (imageUrl: string, occasion: string | null) => {
   try {
-    // Fetch the image
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-
-    // Create download link
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
     const filename = `outfit_${occasion?.toLowerCase().replace(/\s+/g, '_') || 'generated'}_${Date.now()}.png`;
 
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Try fetch with CORS
+    const response = await fetch(imageUrl, {
+      mode: 'cors',
+      cache: 'no-cache',
+    });
 
-    // Cleanup
-    URL.revokeObjectURL(url);
+    if (!response.ok) {
+      throw new Error('Failed to fetch image');
+    }
+
+    const blob = await response.blob();
+
+    // Safari-compatible download
+    if (window.navigator && (window.navigator as any).msSaveOrOpenBlob) {
+      // IE11 & Edge
+      (window.navigator as any).msSaveOrOpenBlob(blob, filename);
+    } else {
+      // Modern browsers including Safari
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup with timeout for Safari
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
 
     return 'Outfit downloaded successfully!';
   } catch (error) {
@@ -82,7 +142,7 @@ export const downloadOutfitImage = async (imageUrl: string, occasion: string | n
 };
 
 /**
- * Download outfit card as image (entire component with details)
+ * Download outfit card as image (Safari-compatible with html2canvas)
  */
 export const downloadOutfitCard = async (elementId: string, occasion: string | null) => {
   try {
@@ -91,35 +151,56 @@ export const downloadOutfitCard = async (elementId: string, occasion: string | n
       throw new Error('Outfit card element not found');
     }
 
-    // Capture the element as canvas
+    // Safari-optimized html2canvas options
     const canvas = await html2canvas(element, {
       backgroundColor: '#ffffff',
-      scale: 2, // Higher quality
+      scale: window.devicePixelRatio || 2, // Use device pixel ratio for Safari
       logging: false,
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false, // More strict for Safari
+      imageTimeout: 15000, // Longer timeout for Safari
+      // Safari-specific fixes
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight,
     });
 
-    // Convert to blob and download
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        throw new Error('Failed to create image');
-      }
+    return new Promise<string>((resolve, reject) => {
+      // Convert to blob and download
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Failed to create image'));
+            return;
+          }
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const filename = `outfit_card_${occasion?.toLowerCase().replace(/\s+/g, '_') || 'generated'}_${Date.now()}.png`;
+          const filename = `outfit_card_${occasion?.toLowerCase().replace(/\s+/g, '_') || 'generated'}_${Date.now()}.png`;
 
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+          // Safari-compatible download
+          if (window.navigator && (window.navigator as any).msSaveOrOpenBlob) {
+            (window.navigator as any).msSaveOrOpenBlob(blob, filename);
+          } else {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
 
-      URL.revokeObjectURL(url);
-    }, 'image/png');
+            document.body.appendChild(link);
+            link.click();
 
-    return 'Outfit card downloaded successfully!';
+            // Cleanup with timeout for Safari
+            setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }, 100);
+          }
+
+          resolve('Outfit card downloaded successfully!');
+        },
+        'image/png',
+        1.0 // Maximum quality
+      );
+    });
   } catch (error) {
     console.error('Download card failed:', error);
     throw new Error('Failed to download outfit card. Please try again.');
@@ -127,7 +208,7 @@ export const downloadOutfitCard = async (elementId: string, occasion: string | n
 };
 
 /**
- * Copy outfit details to clipboard as text
+ * Copy outfit details to clipboard as text (Safari-compatible)
  */
 export const copyOutfitDetails = async (outfitDescription: string, occasion: string | null) => {
   try {
@@ -165,7 +246,8 @@ ${parsed.product_recommendations
 Generated by AI Outfit Assistant ✨
     `.trim();
 
-    await navigator.clipboard.writeText(text);
+    // Use Safari-compatible copy function
+    await copyToClipboard(text);
     return 'Outfit details copied to clipboard!';
   } catch (error) {
     console.error('Copy failed:', error);
@@ -174,7 +256,7 @@ Generated by AI Outfit Assistant ✨
 };
 
 /**
- * Share outfit via Web Share API (mobile native sharing)
+ * Share outfit via Web Share API (Safari iOS compatible)
  */
 export const shareViaWebShare = async (
   outfitImageUrl: string,
@@ -185,16 +267,31 @@ export const shareViaWebShare = async (
   }
 
   try {
-    // Fetch image as blob
-    const response = await fetch(outfitImageUrl);
-    const blob = await response.blob();
-    const file = new File([blob], 'outfit.png', { type: 'image/png' });
+    // Check if files sharing is supported (Safari may not support it)
+    const canShareFiles = navigator.canShare && navigator.canShare({ files: [] as File[] });
 
-    await navigator.share({
-      title: `My AI-Generated ${occasion || 'Outfit'}`,
-      text: 'Check out my AI-generated outfit! ✨',
-      files: [file],
-    });
+    if (canShareFiles) {
+      // Fetch image as blob
+      const response = await fetch(outfitImageUrl, {
+        mode: 'cors',
+        cache: 'no-cache',
+      });
+      const blob = await response.blob();
+      const file = new File([blob], 'outfit.png', { type: 'image/png' });
+
+      await navigator.share({
+        title: `My AI-Generated ${occasion || 'Outfit'}`,
+        text: 'Check out my AI-generated outfit! ✨',
+        files: [file],
+      });
+    } else {
+      // Fallback for Safari: share URL only
+      await navigator.share({
+        title: `My AI-Generated ${occasion || 'Outfit'}`,
+        text: 'Check out my AI-generated outfit! ✨',
+        url: window.location.href,
+      });
+    }
 
     return 'Outfit shared successfully!';
   } catch (error: any) {
