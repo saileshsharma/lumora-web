@@ -44,7 +44,7 @@ const copyToClipboard = async (text: string): Promise<void> => {
  */
 export const shareOutfit = async (
   platform: 'twitter' | 'facebook' | 'instagram' | 'copy',
-  outfitImageUrl: string,
+  _outfitImageUrl: string,
   occasion: string | null
 ) => {
   const text = `Check out my AI-generated ${occasion || 'outfit'}! ✨`;

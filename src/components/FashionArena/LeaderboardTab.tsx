@@ -34,18 +34,19 @@ export const LeaderboardTab: React.FC<LeaderboardTabProps> = ({ leaderboard, onR
     }
   };
 
-  const getRankClass = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return styles.gold;
-      case 2:
-        return styles.silver;
-      case 3:
-        return styles.bronze;
-      default:
-        return '';
-    }
-  };
+  // Removed unused function - getRankClass
+  // const getRankClass = (rank: number) => {
+  //   switch (rank) {
+  //     case 1:
+  //       return styles.gold;
+  //     case 2:
+  //       return styles.silver;
+  //     case 3:
+  //       return styles.bronze;
+  //     default:
+  //       return '';
+  //   }
+  // };
 
   if (leaderboard.length === 0) {
     return (

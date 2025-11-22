@@ -12,7 +12,7 @@ export const Header: React.FC = () => {
   const { currentMode, setMode } = useAppStore();
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
-  const { history, favorites } = useFavoritesStore();
+  const { history } = useFavoritesStore();
   const [showHistory, setShowHistory] = useState(false);
 
   const modes: { value: AppMode; label: string }[] = [

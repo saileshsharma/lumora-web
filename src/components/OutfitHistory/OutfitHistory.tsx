@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useFavoritesStore } from '../../store/favoritesStore';
-import { Button, Modal } from '../common';
-import type { Occasion } from '../../types';
+import { Modal } from '../common';
 import styles from './OutfitHistory.module.css';
 
 interface OutfitHistoryProps {
@@ -22,7 +21,6 @@ export const OutfitHistory: React.FC<OutfitHistoryProps> = ({ isOpen, onClose })
 
   const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterOccasion, setFilterOccasion] = useState<Occasion | null>(null);
 
   const displayedOutfits =
     activeTab === 'favorites' ? getFavorites() : getRecentOutfits(100);
@@ -35,9 +33,7 @@ export const OutfitHistory: React.FC<OutfitHistoryProps> = ({ isOpen, onClose })
         .includes(searchQuery.toLowerCase()) ||
       outfit.occasion?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesOccasion = !filterOccasion || outfit.occasion === filterOccasion;
-
-    return matchesSearch && matchesOccasion;
+    return matchesSearch;
   });
 
   const formatDate = (timestamp: number) => {
