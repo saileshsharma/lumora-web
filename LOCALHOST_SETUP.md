@@ -70,7 +70,7 @@ npm run dev
 ```
 VITE v5.x.x  ready in xxx ms
 
-➜  Local:   http://localhost:5173/
+➜  Local:   http://localhost:5174/
 ➜  Network: use --host to expose
 ➜  press h + enter to show help
 ```
@@ -79,7 +79,7 @@ VITE v5.x.x  ready in xxx ms
 
 Open your browser and navigate to:
 ```
-http://localhost:5173
+http://localhost:5174
 ```
 
 ---
@@ -181,6 +181,9 @@ Make sure all dependencies are installed:
 # Should be: http://localhost:5001/api/auth/...
 ```
 
+**Check CORS:**
+Make sure the backend allows requests from http://localhost:5174
+
 ### Problem: JWT Secret Key not configured
 
 **Solution:**
@@ -238,7 +241,7 @@ For local development, this is not needed (defaults to http://localhost:5001)
 | Service | Port | URL | Notes |
 |---------|------|-----|-------|
 | Backend (Flask) | 5001 | http://localhost:5001 | Avoids macOS AirPlay on 5000 |
-| Frontend (Vite) | 5173 | http://localhost:5173 | Default Vite dev server port |
+| Frontend (Vite) | 5174 | http://localhost:5174 | Custom port to avoid conflicts |
 | AirPlay Receiver | 5000 | - | macOS system service |
 
 ---
@@ -246,11 +249,11 @@ For local development, this is not needed (defaults to http://localhost:5001)
 ## Quick Start Checklist
 
 - [ ] Backend running on port 5001
-- [ ] Frontend running on port 5173
+- [ ] Frontend running on port 5174
 - [ ] .env file configured with API keys
 - [ ] JWT_SECRET_KEY generated and added to .env
 - [ ] No error messages in terminal
-- [ ] Can access http://localhost:5173 in browser
+- [ ] Can access http://localhost:5174 in browser
 - [ ] Sign up form appears
 - [ ] Backend health check passes: `curl http://localhost:5001/api/health`
 

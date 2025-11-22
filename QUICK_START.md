@@ -75,11 +75,11 @@ python3 -c "import secrets; print(secrets.token_hex(32))"
 
 ### Server Startup
 - **Backend:** Starts Flask on `http://localhost:5001`
-- **Frontend:** Starts Vite dev server on `http://localhost:5173`
+- **Frontend:** Starts Vite dev server on `http://localhost:5174`
 - Logs output to `backend.log` and `frontend.log`
 
 ### Browser Launch
-- Automatically opens `http://localhost:5173` in your default browser
+- Automatically opens `http://localhost:5174` in your default browser
 
 ## Stopping the Servers
 
@@ -121,7 +121,7 @@ Check `backend.log` for errors. Common issues:
 
 ### "Frontend failed to start"
 Check `frontend.log` for errors. Common issues:
-- Port 5173 already in use
+- Port 5174 already in use
 - npm dependencies not installed
 - Node version too old
 
@@ -131,8 +131,8 @@ If ports are in use, stop other processes:
 # Check what's using port 5001
 lsof -i :5001
 
-# Check what's using port 5173
-lsof -i :5173
+# Check what's using port 5174
+lsof -i :5174
 
 # Kill process by PID
 kill <PID>
@@ -171,7 +171,7 @@ npm run dev
 ## URLs
 
 Once running, access:
-- **Frontend:** http://localhost:5173
+- **Frontend:** http://localhost:5174
 - **Backend API:** http://localhost:5001
 - **Health Check:** http://localhost:5001/api/health
 

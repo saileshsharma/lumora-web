@@ -160,9 +160,9 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}🚀 Starting Frontend Server (Port 5173)...${NC}"
+echo -e "${GREEN}🚀 Starting Frontend Server (Port 5174)...${NC}"
 cd frontend
-npm run dev > ../frontend.log 2>&1 &
+npm run dev -- --port 5174 > ../frontend.log 2>&1 &
 FRONTEND_PID=$!
 cd ..
 
@@ -171,7 +171,7 @@ sleep 2
 
 # Check if frontend started successfully
 if kill -0 $FRONTEND_PID 2>/dev/null; then
-    echo -e "${GREEN}✅ Frontend is running on http://localhost:5173${NC}"
+    echo -e "${GREEN}✅ Frontend is running on http://localhost:5174${NC}"
 else
     echo -e "${RED}❌ Frontend failed to start. Check frontend.log for errors.${NC}"
     kill $BACKEND_PID 2>/dev/null
@@ -183,7 +183,7 @@ echo -e "${GREEN}╔════════════════════
 echo -e "${GREEN}║          🎉 All Systems Ready! 🎉          ║${NC}"
 echo -e "${GREEN}╠════════════════════════════════════════════╣${NC}"
 echo -e "${GREEN}║                                            ║${NC}"
-echo -e "${GREEN}║  Frontend: ${BLUE}http://localhost:5173${GREEN}          ║${NC}"
+echo -e "${GREEN}║  Frontend: ${BLUE}http://localhost:5174${GREEN}          ║${NC}"
 echo -e "${GREEN}║  Backend:  ${BLUE}http://localhost:5001${GREEN}          ║${NC}"
 echo -e "${GREEN}║                                            ║${NC}"
 echo -e "${GREEN}║  Logs:                                     ║${NC}"
@@ -199,7 +199,7 @@ echo ""
 if command -v open &> /dev/null; then
     echo -e "${BLUE}🌐 Opening browser...${NC}"
     sleep 1
-    open http://localhost:5173
+    open http://localhost:5174
 fi
 
 # Wait for both processes
