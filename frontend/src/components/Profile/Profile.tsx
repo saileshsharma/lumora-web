@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useKeycloak } from '../../providers/KeycloakProvider';
 import { getUserInfo, getUserRoles } from '../../config/keycloak';
 import { LogoutConfirmModal } from '../common';
+import { userApi } from '../../services/api';
 import styles from './Profile.module.css';
 
 interface UserProfile {
@@ -61,14 +62,25 @@ export const Profile: React.FC = () => {
   };
 
   const loadUserStats = async () => {
-    // TODO: Load actual stats from API
-    // For now, using mock data
-    setStats({
-      outfitsGenerated: 42,
-      outfitsRated: 156,
-      arenaSubmissions: 12,
-      favoriteOutfits: 28,
-    });
+    try {
+      const statsData = await userApi.getUserStats();
+
+      setStats({
+        outfitsGenerated: statsData.outfits_generated,
+        outfitsRated: statsData.outfits_rated,
+        arenaSubmissions: statsData.arena_submissions,
+        favoriteOutfits: statsData.favorite_outfits,
+      });
+    } catch (error) {
+      console.error('Failed to load user stats:', error);
+      // Keep default zeros if API fails
+      setStats({
+        outfitsGenerated: 0,
+        outfitsRated: 0,
+        arenaSubmissions: 0,
+        favoriteOutfits: 0,
+      });
+    }
   };
 
   const getInitials = (name: string): string => {
