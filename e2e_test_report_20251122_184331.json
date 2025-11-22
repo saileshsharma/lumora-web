@@ -1,0 +1,110 @@
+{
+  "timestamp": "2025-11-22T18:43:31.230706",
+  "duration": 0.33521509170532227,
+  "configuration": {
+    "keycloak_url": "http://localhost:8080",
+    "backend_url": "http://localhost:5001",
+    "frontend_url": "http://localhost:5174",
+    "realm": "lumora",
+    "test_user": "sailesh.sharma@gmail.com"
+  },
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "warned": 0
+  },
+  "tests": [
+    {
+      "category": "Keycloak",
+      "name": "Keycloak Server Health",
+      "status": "PASS",
+      "message": "Keycloak is healthy (HTTP 200)",
+      "duration": 0.060205698013305664
+    },
+    {
+      "category": "Keycloak",
+      "name": "Keycloak Realm Configuration",
+      "status": "PASS",
+      "message": "Realm 'lumora' configured correctly",
+      "duration": 0.019852876663208008
+    },
+    {
+      "category": "Keycloak",
+      "name": "User Authentication",
+      "status": "PASS",
+      "message": "Authentication successful, token expires in 300s",
+      "duration": 0.05163383483886719
+    },
+    {
+      "category": "Keycloak",
+      "name": "Token Validation",
+      "status": "PASS",
+      "message": "Token valid, user: sailesh.sharma@gmail.com",
+      "duration": 0.04974102973937988
+    },
+    {
+      "category": "Backend",
+      "name": "Backend Server Health",
+      "status": "PASS",
+      "message": "Backend healthy: {'message': 'Outfit Assistant API is running', 'status': 'healthy'}",
+      "duration": 0.01084589958190918
+    },
+    {
+      "category": "Backend",
+      "name": "CORS Configuration",
+      "status": "PASS",
+      "message": "CORS enabled: http://localhost:5174",
+      "duration": 0.014076948165893555
+    },
+    {
+      "category": "Backend",
+      "name": "Keycloak Token Integration",
+      "status": "PASS",
+      "message": "Backend accepted Keycloak token",
+      "duration": 0.03466987609863281
+    },
+    {
+      "category": "Backend",
+      "name": "Outfit Rater Endpoint",
+      "status": "PASS",
+      "message": "Outfit rater endpoint accessible",
+      "duration": 0.028872966766357422
+    },
+    {
+      "category": "Backend",
+      "name": "Outfit Generator Endpoint",
+      "status": "PASS",
+      "message": "Outfit generator endpoint accessible",
+      "duration": 0.0032389163970947266
+    },
+    {
+      "category": "Backend",
+      "name": "Fashion Arena Endpoint",
+      "status": "PASS",
+      "message": "Fashion arena endpoint accessible",
+      "duration": 0.012299060821533203
+    },
+    {
+      "category": "Frontend",
+      "name": "Frontend Accessibility",
+      "status": "PASS",
+      "message": "Frontend accessible",
+      "duration": 0.009434938430786133
+    },
+    {
+      "category": "Frontend",
+      "name": "Static Assets Loading",
+      "status": "PASS",
+      "message": "Static assets loading correctly",
+      "duration": 0.010236978530883789
+    },
+    {
+      "category": "Integration",
+      "name": "Full Authentication Flow",
+      "status": "PASS",
+      "message": "Full auth flow: Keycloak \u2192 Backend successful",
+      "duration": 0.02978801727294922
+    }
+  ]
+}
