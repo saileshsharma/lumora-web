@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, ImageUpload, OccasionSelect, Loading, CameraModal } from '../common';
+import { Button, ImageUpload, OccasionSelect, Loading, CameraModal, ArenaSubmitModal } from '../common';
 import { GeneratorResults } from './GeneratorResults';
 import { useGeneratorStore } from '../../store/generatorStore';
 import { useAppStore } from '../../store/appStore';
@@ -30,6 +30,7 @@ export const OutfitGenerator: React.FC = () => {
   const [wowFactor, setWowFactor] = useState(5);
   const [brands, setBrands] = useState('');
   const [conditions, setConditions] = useState('');
+  const [isArenaModalOpen, setIsArenaModalOpen] = useState(false);
 
   // Load shared image from Outfit Rater if available
   useEffect(() => {
@@ -87,6 +88,10 @@ export const OutfitGenerator: React.FC = () => {
     setBrands('');
     setConditions('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSubmitToArena = () => {
+    setIsArenaModalOpen(true);
   };
 
   return (
@@ -194,6 +199,7 @@ export const OutfitGenerator: React.FC = () => {
             originalImage={imageData}
             occasion={occasion}
             onReset={handleReset}
+            onSubmitToArena={handleSubmitToArena}
           />
         </div>
       )}
@@ -207,6 +213,18 @@ export const OutfitGenerator: React.FC = () => {
           setIsCameraOpen(false);
         }}
       />
+
+      {results && imageData && occasion && (
+        <ArenaSubmitModal
+          isOpen={isArenaModalOpen}
+          onClose={() => setIsArenaModalOpen(false)}
+          imageData={results.outfit_image_url}
+          occasion={occasion}
+          sourceMode="generator"
+          defaultTitle={`AI-Generated ${occasion} Outfit`}
+          defaultDescription="Created by AI Outfit Assistant"
+        />
+      )}
     </div>
   );
 };
