@@ -1,0 +1,7 @@
+name = "lumora-frontend"
+compatibility_date = "2025-11-22"
+
+# CloudFlare Pages - Static Assets Configuration
+# This tells wrangler to deploy the dist directory as a static site
+[assets]
+directory = "./dist"

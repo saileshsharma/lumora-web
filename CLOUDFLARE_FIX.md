@@ -30,17 +30,16 @@ CloudFlare is running `npx wrangler deploy` which is **INCORRECT** for CloudFlar
    Build output directory: dist
    Root directory: outfit-assistant/frontend
 
-   >>> DEPLOY COMMAND: npx wrangler pages deploy dist <<<
+   >>> DEPLOY COMMAND: npx wrangler deploy <<<
    ```
 
-   **Note**: If deploy command is mandatory, use: `npx wrangler pages deploy dist`
-   This is the **Pages** deploy command (different from Workers deploy)
+   **Note**: With the wrangler.toml file in the repo, use: `npx wrangler deploy`
+   The wrangler.toml configures it as a Pages project with assets
 
 6. **Important Notes**
-   - If the field is mandatory, use: `npx wrangler pages deploy dist`
-   - The key difference: `wrangler pages deploy` (not just `wrangler deploy`)
-   - `wrangler deploy` = Workers (wrong) ❌
-   - `wrangler pages deploy dist` = Pages (correct) ✅
+   - The `wrangler.toml` file in the repo tells wrangler this is a Pages project
+   - The `[assets]` section specifies the `dist` directory contains static files
+   - With this config, `npx wrangler deploy` will deploy as Pages (not Workers)
 
 7. **Save and Retry**
    - Click "Save" at the bottom
@@ -68,7 +67,7 @@ Executing user deploy command: npx wrangler deploy  ❌ WRONG
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 | Root directory | `outfit-assistant/frontend` |
-| **Deploy command** | `npx wrangler pages deploy dist` |
+| **Deploy command** | `npx wrangler deploy` |
 | Node.js version | 20 (auto-detected) |
 
 ## Environment Variables

@@ -44,9 +44,9 @@ This guide explains how to deploy the frontend to CloudFlare Pages while keeping
    ```
 
 5. **Build Settings (Important!)**
-   - **Deploy command**: `npx wrangler pages deploy dist`
-   - This is the Pages-specific deploy command
-   - Do NOT use `npx wrangler deploy` (that's for Workers)
+   - **Deploy command**: `npx wrangler deploy`
+   - The `wrangler.toml` file in the repo configures this as a Pages project
+   - The `[assets]` section tells wrangler to deploy `dist` as static files
 
 6. **Deploy**
    - Click "Save and Deploy"
@@ -61,7 +61,7 @@ This guide explains how to deploy the frontend to CloudFlare Pages while keeping
 | **Build output directory** | `dist` |
 | **Root directory** | `outfit-assistant/frontend` |
 | **Node version** | 20 (see `.node-version`) |
-| **Deploy command** | `npx wrangler pages deploy dist` |
+| **Deploy command** | `npx wrangler deploy` |
 | **Environment variables** | `VITE_API_URL=https://web-production-c70ba.up.railway.app/api` |
 
 ## Custom Domain (Optional)
