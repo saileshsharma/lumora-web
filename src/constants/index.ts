@@ -27,6 +27,7 @@ export const APP_MODES = {
   RATER: 'rater',
   GENERATOR: 'generator',
   ARENA: 'arena',
+  SQUAD: 'squad',
   TEAM: 'team',
 } as const;
 

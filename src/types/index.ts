@@ -90,6 +90,94 @@ export interface VoteRequest {
   winner_id: string;
 }
 
+// Style Squad Types
+export type VoteType = 'thumbs_up' | 'thumbs_down' | 'fire';
+
+export interface SquadMember {
+  id: string;
+  name: string;
+  avatar?: string;
+  joinedAt: string;
+}
+
+export interface SquadOutfitVote {
+  userId: string;
+  userName: string;
+  voteType: VoteType;
+  votedAt: string;
+  comment?: string;
+}
+
+export interface SquadOutfit {
+  id: string;
+  squadId: string;
+  userId: string;
+  userName: string;
+  photo: string;  // Base64 image data
+  occasion: string;
+  question?: string;  // "Should I wear this to the interview?"
+  createdAt: string;
+  votes: SquadOutfitVote[];
+  chatMessages: SquadChatMessage[];
+}
+
+export interface SquadChatMessage {
+  id: string;
+  userId: string;
+  userName: string;
+  message: string;
+  timestamp: string;
+}
+
+export interface Squad {
+  id: string;
+  name: string;
+  description?: string;
+  createdBy: string;
+  createdAt: string;
+  members: SquadMember[];
+  outfits: SquadOutfit[];
+  inviteCode?: string;
+  maxMembers: number;
+}
+
+export interface CreateSquadRequest {
+  name: string;
+  description?: string;
+  userId: string;
+  userName: string;
+}
+
+export interface JoinSquadRequest {
+  inviteCode: string;
+  userId: string;
+  userName: string;
+}
+
+export interface ShareOutfitRequest {
+  squadId: string;
+  userId: string;
+  userName: string;
+  photo: string;
+  occasion: string;
+  question?: string;
+}
+
+export interface VoteOnOutfitRequest {
+  outfitId: string;
+  userId: string;
+  userName: string;
+  voteType: VoteType;
+  comment?: string;
+}
+
+export interface SendMessageRequest {
+  outfitId: string;
+  userId: string;
+  userName: string;
+  message: string;
+}
+
 // Component Props Types
 export interface ImageUploadProps {
   onImageSelect: (imageData: string) => void;
