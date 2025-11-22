@@ -94,8 +94,8 @@ export interface VoteRequest {
 export type VoteType = 'thumbs_up' | 'thumbs_down' | 'fire';
 
 export interface SquadMember {
-  id: string;
-  name: string;
+  userId: string;
+  userName: string;
   avatar?: string;
   joinedAt: string;
 }
@@ -122,11 +122,10 @@ export interface SquadOutfit {
 }
 
 export interface SquadChatMessage {
-  id: string;
   userId: string;
   userName: string;
   message: string;
-  timestamp: string;
+  sentAt: string;
 }
 
 export interface Squad {
@@ -146,6 +145,7 @@ export interface CreateSquadRequest {
   description?: string;
   userId: string;
   userName: string;
+  maxMembers?: number;
 }
 
 export interface JoinSquadRequest {

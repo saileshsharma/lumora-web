@@ -14,7 +14,6 @@ interface VoteButtonsProps {
 
 export const VoteButtons: React.FC<VoteButtonsProps> = ({
   outfitId,
-  squadId,
   votes,
   onVoteUpdate,
 }) => {

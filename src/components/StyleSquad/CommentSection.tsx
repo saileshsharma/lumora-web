@@ -14,7 +14,6 @@ interface CommentSectionProps {
 
 export const CommentSection: React.FC<CommentSectionProps> = ({
   outfitId,
-  squadId,
   messages,
   onMessageUpdate,
 }) => {

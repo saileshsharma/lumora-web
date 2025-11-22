@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSquadStore } from '../../store/squadStore';
-import { squadApi } from '../../services/squadApi';
-import { handleApiError } from '../../utils/toast';
 import { OutfitCard } from './OutfitCard';
 import type { SquadOutfit } from '../../types';
 import styles from './OutfitFeed.module.css';
@@ -13,25 +11,12 @@ interface OutfitFeedProps {
 export const OutfitFeed: React.FC<OutfitFeedProps> = ({ squadId }) => {
   const { getSquadById, updateOutfitInSquad } = useSquadStore();
   const squad = getSquadById(squadId);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   const outfits = squad?.outfits || [];
 
   const handleVoteUpdate = (outfitId: string, updates: Partial<SquadOutfit>) => {
     updateOutfitInSquad(squadId, outfitId, updates);
-  };
-
-  const handleRefresh = async () => {
-    setIsLoading(true);
-    try {
-      const freshOutfits = await squadApi.getSquadOutfits(squadId);
-      // Update the squad with fresh outfits
-      useSquadStore.getState().updateSquad(squadId, { outfits: freshOutfits });
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   if (outfits.length === 0) {
