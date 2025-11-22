@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '../common';
+import { OutfitActions } from './OutfitActions';
 import type { GeneratorResponse, Occasion, OutfitDetails } from '../../types';
 import styles from './GeneratorResults.module.css';
 
@@ -12,7 +13,7 @@ interface GeneratorResultsProps {
 
 export const GeneratorResults: React.FC<GeneratorResultsProps> = ({
   results,
-  originalImage: _originalImage,
+  originalImage,
   occasion,
   onReset,
 }) => {
@@ -37,7 +38,7 @@ export const GeneratorResults: React.FC<GeneratorResultsProps> = ({
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} id="outfit-results-container">
       {/* Hero Section */}
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
@@ -204,6 +205,9 @@ export const GeneratorResults: React.FC<GeneratorResultsProps> = ({
           <pre className={styles.rawJson}>{results.outfit_description}</pre>
         </div>
       )}
+
+      {/* Outfit Actions - Save, Share, Download */}
+      <OutfitActions results={results} originalImage={originalImage} occasion={occasion} />
 
       {/* Action Buttons */}
       <div className={styles.actionBar}>

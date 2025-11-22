@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppStore } from '../../store/appStore';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { useFavoritesStore } from '../../store/favoritesStore';
+import { OutfitHistory } from '../OutfitHistory/OutfitHistory';
 import { APP_MODES } from '../../constants';
 import type { AppMode } from '../../types';
 import styles from './Header.module.css';
@@ -10,6 +12,8 @@ export const Header: React.FC = () => {
   const { currentMode, setMode } = useAppStore();
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
+  const { history, favorites } = useFavoritesStore();
+  const [showHistory, setShowHistory] = useState(false);
 
   const modes: { value: AppMode; label: string }[] = [
     { value: APP_MODES.RATER, label: 'Outfit Rater' },
@@ -38,6 +42,22 @@ export const Header: React.FC = () => {
           ))}
           <div className={styles.userSection}>
             <button
+              className={styles.historyButton}
+              onClick={() => setShowHistory(true)}
+              title="View outfit history"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+              {history.length > 0 && (
+                <span className={styles.historyBadge}>{history.length}</span>
+              )}
+            </button>
+            <button
               className={styles.themeToggle}
               onClick={toggleTheme}
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -51,6 +71,9 @@ export const Header: React.FC = () => {
           </div>
         </nav>
       </div>
+
+      {/* Outfit History Modal */}
+      <OutfitHistory isOpen={showHistory} onClose={() => setShowHistory(false)} />
     </header>
   );
 };
