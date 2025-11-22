@@ -63,8 +63,10 @@ export const BrowseTab: React.FC<BrowseTabProps> = ({ submissions, onRefresh }) 
               )}
               <div className={styles.rating}>
                 <span className={styles.ratingLabel}>Rating:</span>
-                <span className={styles.ratingValue}>{submission.avg_rating.toFixed(1)}/10</span>
-                <span className={styles.votes}>({submission.votes} votes)</span>
+                <span className={styles.ratingValue}>
+                  {submission.avg_rating ? submission.avg_rating.toFixed(1) : '0.0'}/10
+                </span>
+                <span className={styles.votes}>({submission.votes || 0} votes)</span>
               </div>
               <div className={styles.actions}>
                 <button className={styles.likeButton} onClick={() => handleLike(submission.id)}>
