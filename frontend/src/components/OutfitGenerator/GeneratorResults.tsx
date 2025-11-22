@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '../common';
+import { OutfitActions } from './OutfitActions';
+import { getAllShoppingLinks } from '../../services/api';
 import type { GeneratorResponse, Occasion, OutfitDetails } from '../../types';
 import styles from './GeneratorResults.module.css';
 
@@ -8,13 +10,15 @@ interface GeneratorResultsProps {
   originalImage: string | null;
   occasion: Occasion | null;
   onReset: () => void;
+  onSubmitToArena?: () => void;
 }
 
 export const GeneratorResults: React.FC<GeneratorResultsProps> = ({
   results,
-  originalImage: _originalImage,
+  originalImage,
   occasion,
   onReset,
+  onSubmitToArena,
 }) => {
   const [selectedItem, setSelectedItem] = useState<number | null>(null);
 
@@ -36,8 +40,12 @@ export const GeneratorResults: React.FC<GeneratorResultsProps> = ({
     return lightColors.some(c => color.toLowerCase().includes(c)) ? '#000' : '#fff';
   };
 
+  const handleShopClick = (url: string) => {
+    window.open(url, '_blank');
+  };
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} id="outfit-results-container">
       {/* Hero Section */}
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
@@ -165,32 +173,47 @@ export const GeneratorResults: React.FC<GeneratorResultsProps> = ({
               </div>
 
               <div className={styles.productsCarousel}>
-                {outfitDetails.product_recommendations.map((product, index) => (
-                  <div key={index} className={styles.productItem}>
-                    <div className={styles.productBadge}>{index + 1}</div>
-                    <div className={styles.productDetails}>
-                      <h4 className={styles.productTitle}>{product.item}</h4>
-                      <div className={styles.productMeta}>
-                        <span className={styles.productBrand}>{product.brand}</span>
-                        <span className={styles.productSeparator}>•</span>
-                        <span className={styles.productCategory}>{product.type}</span>
-                      </div>
-                      <p className={styles.productDesc}>{product.description}</p>
-                      <div className={styles.productFooter}>
-                        <div className={styles.productPriceTag}>
-                          <span className={styles.priceLabel}>Price</span>
-                          <span className={styles.priceValue}>{product.price}</span>
+                {outfitDetails.product_recommendations.map((product, index) => {
+                  const shoppingLinks = getAllShoppingLinks(product.item);
+                  return (
+                    <div key={index} className={styles.productItem}>
+                      <div className={styles.productBadge}>{index + 1}</div>
+                      <div className={styles.productDetails}>
+                        <h4 className={styles.productTitle}>{product.item}</h4>
+                        <div className={styles.productMeta}>
+                          <span className={styles.productBrand}>{product.brand}</span>
+                          <span className={styles.productSeparator}>•</span>
+                          <span className={styles.productCategory}>{product.type}</span>
                         </div>
-                        <div className={styles.productWhy}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2"/>
-                          </svg>
-                          <span>{product.reason}</span>
+                        <p className={styles.productDesc}>{product.description}</p>
+                        <div className={styles.productFooter}>
+                          <div className={styles.productPriceTag}>
+                            <span className={styles.priceLabel}>Price</span>
+                            <span className={styles.priceValue}>{product.price}</span>
+                          </div>
+                          <div className={styles.productWhy}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2"/>
+                            </svg>
+                            <span>{product.reason}</span>
+                          </div>
+                        </div>
+                        {/* Shopping Store Buttons */}
+                        <div className={styles.shopButtonsGrid}>
+                          {shoppingLinks.map((link) => (
+                            <button
+                              key={link.site}
+                              onClick={() => handleShopClick(link.url)}
+                              className={`${styles.shopButton} ${styles[`shop-${link.site}`]}`}
+                            >
+                              {link.label}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -205,8 +228,16 @@ export const GeneratorResults: React.FC<GeneratorResultsProps> = ({
         </div>
       )}
 
+      {/* Outfit Actions - Save, Share, Download */}
+      <OutfitActions results={results} originalImage={originalImage} occasion={occasion} />
+
       {/* Action Buttons */}
       <div className={styles.actionBar}>
+        {onSubmitToArena && (
+          <Button variant="primary" onClick={onSubmitToArena} fullWidth>
+            🏆 Submit to Fashion Arena
+          </Button>
+        )}
         <Button variant="secondary" onClick={onReset} fullWidth>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2"/>

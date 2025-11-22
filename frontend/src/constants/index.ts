@@ -32,7 +32,7 @@ export const APP_MODES = {
   PROFILE: 'profile',
 } as const;
 
-// Occasions
+// Occasions (displayed values - will be converted to lowercase for API)
 export const OCCASIONS = [
   'Casual',
   'Formal',
@@ -44,6 +44,11 @@ export const OCCASIONS = [
   'Beach',
   'Travel',
 ] as const;
+
+// Map display occasions to API format (lowercase)
+export const getApiOccasion = (displayOccasion: string): string => {
+  return displayOccasion.toLowerCase().replace(/\s+/g, '');
+};
 
 // Arena Tabs
 export const ARENA_TABS = {

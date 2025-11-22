@@ -1,0 +1,131 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+[data-theme='dark'] .label {
+  color: #d1d5db;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.codeInput {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+[data-theme='dark'] .codeInput {
+  background: #1f2937;
+  border-color: #374151;
+  color: #f3f4f6;
+}
+
+.codeInput:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.codeInput::placeholder {
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #eff6ff;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #1e40af;
+}
+
+[data-theme='dark'] .info {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.cancelBtn,
+.submitBtn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+[data-theme='dark'] .cancelBtn {
+  background: #374151;
+  color: #d1d5db;
+}
+
+[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
+  background: #4b5563;
+}
+
+.submitBtn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.cancelBtn:disabled,
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

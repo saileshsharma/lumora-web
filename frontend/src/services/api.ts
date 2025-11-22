@@ -3,7 +3,7 @@
  * Centralized HTTP client with error handling and type safety
  */
 
-import { API_BASE_URL, ERROR_MESSAGES } from '../constants';
+import { API_BASE_URL, ERROR_MESSAGES, getApiOccasion } from '../constants';
 import { getToken } from '../config/keycloak';
 import type {
   RatingResponse,
@@ -115,7 +115,7 @@ export const raterApi = {
       method: 'POST',
       body: JSON.stringify({
         image: imageData,
-        occasion,
+        occasion: getApiOccasion(occasion), // Convert to lowercase API format
         budget,
       }),
     });
@@ -141,7 +141,7 @@ export const generatorApi = {
       method: 'POST',
       body: JSON.stringify({
         user_image: imageData,  // Backend expects 'user_image' not 'image'
-        occasion,
+        occasion: getApiOccasion(occasion), // Convert to lowercase API format
         budget,
       }),
     });
@@ -162,7 +162,7 @@ export const generatorApi = {
       method: 'POST',
       body: JSON.stringify({
         user_image: originalImage,  // Backend expects 'user_image' not 'image'
-        occasion,
+        occasion: getApiOccasion(occasion), // Convert to lowercase API format
         budget: 'Based on AI recommendations',
         improvement_mode: true,
         suggestions,

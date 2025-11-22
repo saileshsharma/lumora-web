@@ -3,7 +3,7 @@
  * Initializes and manages Keycloak authentication
  */
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import keycloak, { keycloakInitOptions, getUserInfo, getUserRoles } from '../config/keycloak';
 import type Keycloak from 'keycloak-js';
 
@@ -30,14 +30,33 @@ export const KeycloakProvider: React.FC<KeycloakProviderProps> = ({ children }) 
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState<any | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
+  const initializingRef = useRef(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    // Prevent double initialization in React Strict Mode
+    if (initializingRef.current || initializedRef.current) {
+      return;
+    }
+
+    initializingRef.current = true;
+
     // Initialize Keycloak
     const initKeycloak = async () => {
       try {
         console.log('Initializing Keycloak...');
 
-        const auth = await keycloak.init(keycloakInitOptions);
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Keycloak initialization timeout')), 10000)
+        );
+
+        const auth = await Promise.race([
+          keycloak.init(keycloakInitOptions),
+          timeoutPromise
+        ]) as boolean;
+
+        initializedRef.current = true;
 
         console.log('Keycloak initialized:', auth ? 'authenticated' : 'not authenticated');
 

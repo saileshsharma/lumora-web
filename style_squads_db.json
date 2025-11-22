@@ -1,0 +1,38 @@
+{
+  "squads": [
+    {
+      "id": "0c1fdfcc-e48d-4ca9-8c5f-6c0b95ed25ea",
+      "name": "Style Crew",
+      "description": "",
+      "createdBy": "user_vsn0i8lpj",
+      "createdAt": "2025-11-22T06:26:53.370161",
+      "members": [
+        {
+          "id": "user_vsn0i8lpj",
+          "name": "User",
+          "joinedAt": "2025-11-22T06:26:53.370182"
+        }
+      ],
+      "outfits": [],
+      "inviteCode": "BB8F4DCE",
+      "maxMembers": 10
+    },
+    {
+      "id": "b845d905-a5c7-4a37-8c49-30e829db19cf",
+      "name": "Tst",
+      "description": "",
+      "createdBy": "user_q9geglb22",
+      "createdAt": "2025-11-22T11:39:01.693309",
+      "members": [
+        {
+          "id": "user_q9geglb22",
+          "name": "User",
+          "joinedAt": "2025-11-22T11:39:01.693320"
+        }
+      ],
+      "outfits": [],
+      "inviteCode": "F4244232",
+      "maxMembers": 10
+    }
+  ]
+}

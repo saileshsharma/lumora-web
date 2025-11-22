@@ -694,3 +694,73 @@
     flex-direction: column;
   }
 }
+
+/* Shopping Store Buttons */
+.shopButtonsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+.shopButton {
+  width: 100%;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--spacing-3) var(--spacing-4);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.shopButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  opacity: 0.9;
+}
+
+.shopButton:active {
+  transform: translateY(0);
+}
+
+/* Amazon Brand Colors */
+.shop-amazon {
+  background: linear-gradient(135deg, #FF9900 0%, #FFB84D 100%);
+}
+
+.shop-amazon:hover {
+  background: linear-gradient(135deg, #FF8800 0%, #FFA033 100%);
+}
+
+/* Shein Brand Colors */
+.shop-shein {
+  background: linear-gradient(135deg, #000000 0%, #2d2d2d 100%);
+}
+
+.shop-shein:hover {
+  background: linear-gradient(135deg, #1a1a1a 0%, #404040 100%);
+}
+
+/* Shopee Brand Colors */
+.shop-shopee {
+  background: linear-gradient(135deg, #EE4D2D 0%, #FF6347 100%);
+}
+
+.shop-shopee:hover {
+  background: linear-gradient(135deg, #DD3C1C 0%, #EE5236 100%);
+}
+
+/* Lazada Brand Colors */
+.shop-lazada {
+  background: linear-gradient(135deg, #0F1C87 0%, #1a2ba8 100%);
+}
+
+.shop-lazada:hover {
+  background: linear-gradient(135deg, #0a1666 0%, #0f1c87 100%);
+}

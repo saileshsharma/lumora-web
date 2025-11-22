@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, ImageUpload, OccasionSelect, Loading, CameraModal } from '../common';
+import { Button, ImageUpload, OccasionSelect, Loading, CameraModal, ArenaSubmitModal } from '../common';
 import { RaterResults } from './RaterResults';
 import { useRaterStore } from '../../store/raterStore';
 import { useAppStore } from '../../store/appStore';
@@ -33,6 +33,7 @@ export const OutfitRater: React.FC = () => {
 
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [customOccasion, setCustomOccasion] = useState('');
+  const [isArenaModalOpen, setIsArenaModalOpen] = useState(false);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -50,7 +51,9 @@ export const OutfitRater: React.FC = () => {
     setLoading(true);
 
     try {
+      console.log('[OutfitRater] Calling rateOutfit API...', { occasion, budget });
       const result = await raterApi.rateOutfit(imageData, occasion, budget || undefined);
+      console.log('[OutfitRater] API call successful, result:', result);
       setResults(result);
       updateToSuccess('', 'Analysis complete!');
 
@@ -59,6 +62,10 @@ export const OutfitRater: React.FC = () => {
         document.getElementById('rater-results')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch (error) {
+      // Log the actual error for debugging
+      console.error('[OutfitRater] Error details:', error);
+      console.error('[OutfitRater] Error message:', error instanceof Error ? error.message : String(error));
+
       // Show error with retry button
       showError('Failed to analyze outfit. Please try again.', () => handleSubmit());
     } finally {
@@ -95,6 +102,10 @@ export const OutfitRater: React.FC = () => {
 
     // Show success message
     updateToSuccess('', '✨ Ready to generate improved outfit!');
+  };
+
+  const handleSubmitToArena = () => {
+    setIsArenaModalOpen(true);
   };
 
   return (
@@ -158,6 +169,7 @@ export const OutfitRater: React.FC = () => {
             occasion={occasion}
             onReset={handleReset}
             onGenerateImproved={handleGenerateImproved}
+            onSubmitToArena={handleSubmitToArena}
           />
         </div>
       )}
@@ -171,6 +183,18 @@ export const OutfitRater: React.FC = () => {
           setIsCameraOpen(false);
         }}
       />
+
+      {imageData && occasion && (
+        <ArenaSubmitModal
+          isOpen={isArenaModalOpen}
+          onClose={() => setIsArenaModalOpen(false)}
+          imageData={imageData}
+          occasion={occasion}
+          sourceMode="rater"
+          defaultTitle={`My ${occasion} Outfit`}
+          defaultDescription={results ? `Rated ${results.overall_rating}/10 by AI` : ''}
+        />
+      )}
     </div>
   );
 };

@@ -18,9 +18,9 @@ const keycloak = new Keycloak(keycloakConfig);
 // Keycloak initialization options
 export const keycloakInitOptions = {
   onLoad: 'check-sso' as const, // Check if user is already logged in
-  silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
   pkceMethod: 'S256' as const, // Use PKCE for enhanced security
   checkLoginIframe: false, // Disable iframe checking for better performance
+  flow: 'standard' as const, // Use standard flow
 };
 
 export default keycloak;
